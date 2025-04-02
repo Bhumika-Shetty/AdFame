@@ -82,6 +82,206 @@ and which optional "difficulty" points you are attempting. -->
 <!-- Make sure to clarify how you will satisfy the Unit 6 and Unit 7 requirements, 
 and which optional "difficulty" points you are attempting. -->
 
+
+# 🎥 Fine-Tuned Video Diffusion Model Serving
+
+This project provides a **RESTful API** using **FastAPI** to generate videos from textual prompts via a fine-tuned **video diffusion model** (up to 14B parameters). Designed for automated marketing content creation, the service meets strict performance and reliability targets with advanced model and system-level optimizations.
+
+
+## 🚀 API Endpoint
+
+**POST** `/generate-video`  
+Accepts a text prompt and returns a generated video.
+
+### 🔧 Example Request
+```json
+{
+  "prompt": "A sunset over the ocean in the style of a watercolor painting",
+  "num_frames": 16,
+  "fps": 8
+}
+```
+
+### 📼 Example Response
+```json
+{
+  "video_url": "https://example.com/videos/gen_abc123.mp4",
+  "frames": 16,
+  "fps": 8,
+  "duration": 2.0
+}
+```
+
+---
+
+## 🎯 Performance Requirements
+
+- **Max Model Size**: 14B parameters  
+- **Batch Throughput**: 4 prompts / 2 minutes  
+- **Single Prompt Latency**: < 30 seconds  
+- **Concurrent Users**: 5–10 (cloud-based)  
+
+---
+
+## 🧠 Model-Level Optimizations
+
+- ✅ **Mixed-Precision Inference** (FP16/BF16)
+- ✅ **INT8 Static Quantization** (ONNX)
+- ✅ **ONNX Graph Optimizations**: Constant folding, operator fusion
+- ✅ **Optimized Attention**: FlashAttention, xFormers
+
+### 🧩 Distributed Inference Strategies
+
+<details>
+<summary><strong>Ulysses Strategy</strong></summary>
+
+- Use `--ulysses_size $GPU_NUMS`
+- Heads must be divisible by number of GPUs
+- Not suitable for 1.3B model with 12 heads on 8-GPU setup
+
+</details>
+
+<details>
+<summary><strong>Ring Strategy</strong></summary>
+
+- Use `--ring_size $GPU_NUMS`
+- Sequence length must be divisible by ring size
+- More flexible than Ulysses
+
+</details>
+
+<details>
+<summary><strong>Hybrid Strategy</strong></summary>
+
+- Combine Ulysses and Ring
+- Example: Ulysses intra-node, Ring inter-node
+
+</details>
+
+### 📈 TeaCache Acceleration
+- Reduces redundant computations during diffusion steps  
+- Achieves up to **2× speedup**
+
+---
+
+## 🧰 System-Level Optimizations
+
+- 🔄 **Asynchronous FastAPI handlers**
+- 📬 **Redis-backed job queue** (manages concurrent jobs)
+- 🔁 **Model warm pools** (avoids cold starts)
+- ⚡ **Load balancing** with autoscaling (Kubernetes compatible)
+
+---
+
+## 📦 Deployment Options
+
+| Platform           | Latency       | Throughput           | Cost             |
+|-------------------|---------------|-----------------------|------------------|
+| **GPU Server**     | ~20–30 sec    | 4+ videos / 2 minutes | High performance |
+| **CPU (ONNX)**     | ~180+ sec      | 1–2 videos / 5 minutes| Budget-friendly  |
+| **Edge Device**    | 5–10+ minutes  | 1 video / 5–10 minutes | Low cost         |
+
+
+
+# 🛠️ Online Evaluation, Feedback Loop, and Monitoring
+
+
+## 📊 Evaluation & Monitoring
+
+### 📍 Offline Evaluation (via MLflow)
+
+- **Text-Video Alignment**: CLIP score  
+- **Realism**: Fréchet Video Distance (FVD)  
+- **Temporal Consistency**: Frame similarity  
+- **Fairness Testing**: Diverse demographic prompts  
+- **Known Failure Modes**: Flickering, object drift  
+- **Unit Tests**: Ensure API validity
+
+### 🧪 Load Testing in Staging
+
+- Simulates real user traffic (5–10 concurrent prompts)  
+- Tests varying prompt lengths, GPU load, etc.
+
+
+
+## 🧪 Canary Deployment Strategy
+
+We implement a **canary deployment** approach to safely roll out new model versions:
+
+- **Initial Split**: Deploy the new model alongside the old one. Only ~5% of real or artificial user traffic is routed to the new version.
+- **Simulated Users**: We simulate a diverse range of user prompts to reflect real-world behavior. These include:
+  - Short, generic prompts (e.g., "a city skyline")
+  - Domain-specific prompts (e.g., branded content like "Nike shoes on a basketball court")
+  - Long descriptive prompts
+  - Edge-case and fairness-related prompts (e.g., diverse demographic references)
+
+### 🔍 Monitoring During Canary Phase
+
+- Log **generation latency**, **errors**, and **CLIP-based similarity scores**.
+- Sample generated outputs for **manual inspection**.
+- Compare canary metrics vs. baseline to evaluate improvements or regressions.
+
+### 🔁 Promotion or Rollback
+
+- If performance is stable, gradually increase canary traffic to 25%, 50%, then 100%.
+- Roll back instantly to the old model if:
+  - Latency spikes
+  - Output quality drops
+  - User complaints increase
+
+## 🔄 Close the Feedback Loop
+
+To continuously improve our model post-deployment:
+
+- **User Feedback**
+  - Collect ratings or regenerate signals from users
+  - Log interaction metrics (e.g., time spent, downloads, shares)
+- **Annotation & Ground Truth**
+  - Manually review a sample of production outputs
+  - Use human annotation or automated checks (e.g., brand compliance)
+- **Production Data Storage**
+  - Save a portion of prompt-output pairs
+  - Label and use this data for periodic fine-tuning
+
+## 📈 Business-Specific Evaluation Plan
+
+While not fully deployed in production, we define a plan for future business-aligned evaluations:
+
+- **Brand Compliance**: Ensure outputs align with visual identity standards (logo, colors, tone)
+- **Engagement Metrics**: Monitor share/download rates as proxy for content effectiveness
+- **Speed to First Frame**: Measure how quickly content can be generated and published
+
+## 🧠 Extra Difficulty Points Attempted
+
+### 📊 Monitor for Data & Label Drift
+
+- Use text embeddings to monitor **prompt distribution shift**
+- Detect visual drift in output content (e.g., style shifts)
+- Visualize prompt clusters over time in a dashboard
+
+### 🔧 Monitor for Model Degradation
+
+- Track trends in CLIP scores, latency, and user behavior
+- Alert engineers when thresholds are crossed
+- Automatically trigger retraining with fresh labeled production data
+
+## 🔁 Automated Recovery & Continuous Learning
+
+We implement a **self-healing pipeline**:
+
+1. Monitor: Log and evaluate metrics in real-time
+2. Detect: Spot drift or degradation
+3. Retrain: Use recent data to fine-tune model
+4. Validate: Run updated model through eval pipeline
+5. Deploy: Use canary rollout for safe promotion
+
+---
+
+> This framework ensures that the deployed video diffusion model remains accurate, fair, and aligned with user expectations—even as inputs, content demands, and business goals evolve.
+
+
+
+
 #### Data pipeline
 
 <!-- Make sure to clarify how you will satisfy the Unit 8 requirements,  and which 
