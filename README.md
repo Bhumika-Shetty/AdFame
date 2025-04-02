@@ -22,9 +22,9 @@ link to their contributions in all repos here. -->
 | Name                            | Responsible for | Link to their commits in this repo |
 |---------------------------------|-----------------|------------------------------------|
 | All team members                |                 |                                    |
-| Yashdeep Prasad                 |Model serving and monitoring platforms                 |                                    |
-| Bhumika Dinesh Shetty           |Model training and training platforms               |                                    |
-| Divij Kapur                     |Continuous X                |                                    |
+| Yashdeep Prasad                 |Model serving and monitoring platforms                 |https://github.com/Bhumika-Shetty/AdFame/activity?actor=prasad-yashdeep                                    |
+| Bhumika Dinesh Shetty           |Model training and training platforms               | https://github.com/Bhumika-Shetty/AdFame/activity?actor=Bhumika-Shetty                                   |
+| Divij Kapur                     |Continuous X                |https://github.com/Bhumika-Shetty/AdFame/activity?actor=dk-4999                                    |
 | Yashas Harisha                  |Data pipeline                 |                                    |
 
 
