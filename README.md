@@ -32,7 +32,7 @@ link to their contributions in all repos here. -->
 
 ![System Architecture](./system_architecture.png)
 
-All the microservices are containerised using docker and the orchestration takes place using kubernetes.
+** Note- All the microservices are containerised using docker and the orchestration takes place using kubernetes.
 
 
 <!-- Overall digram of system. Doesn't need polish, does need to show all the pieces. 
