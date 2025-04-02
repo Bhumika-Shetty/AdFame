@@ -30,7 +30,7 @@ link to their contributions in all repos here. -->
 
 ### System diagram
 
-![System Architecture](./system_architecture.png)
+![System Architecture](./system_arch.png)
 
 All the microservices are containerised using docker and the orchestration takes place using kubernetes.
 
