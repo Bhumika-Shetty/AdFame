@@ -1,13 +1,12 @@
-
 ## AdFame
 
 <!-- 
 Discuss: Value proposition: Your will propose a machine learning system that can be 
 used in an existing business or service. (You should not propose a system in which 
 a new business or service would be developed around the machine learning system.) 
-Describe the value proposition for the machine learning system. What’s the (non-ML) 
+Describe the value proposition for the machine learning system. What's the (non-ML) 
 status quo used in the business or service? What business metric are you going to be 
-judged on? (Note that the “service” does not have to be for general users; you can 
+judged on? (Note that the "service" does not have to be for general users; you can 
 propose a system for a science problem, for example.)
 -->
 
@@ -30,6 +29,11 @@ link to their contributions in all repos here. -->
 
 
 ### System diagram
+
+![System Architecture](./system_architecture.png)
+
+All the microservices are containerised using docker and the orchestration takes place using kubernetes.
+
 
 <!-- Overall digram of system. Doesn't need polish, does need to show all the pieces. 
 Must include: all the hardware, all the containers/software platforms, all the models, 
