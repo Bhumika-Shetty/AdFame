@@ -22,10 +22,10 @@ link to their contributions in all repos here. -->
 | Name                            | Responsible for | Link to their commits in this repo |
 |---------------------------------|-----------------|------------------------------------|
 | All team members                |                 |                                    |
-| Yashdeep Prasad                 |                 |                                    |
-| Bhumika Dinesh Shetty           |                 |                                    |
-| Divij Kapur                     |                 |                                    |
-| Yashas Harisha                  |                 |                                    |
+| Yashdeep Prasad                 |Model serving and monitoring platforms                 |                                    |
+| Bhumika Dinesh Shetty           |Model training and training platforms               |                                    |
+| Divij Kapur                     |Continuous X                |                                    |
+| Yashas Harisha                  |Data pipeline                 |                                    |
 
 
 
