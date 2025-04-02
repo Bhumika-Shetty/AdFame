@@ -20,7 +20,6 @@ link to their contributions in all repos here. -->
 
 | Name                            | Responsible for | Link to their commits in this repo |
 |---------------------------------|-----------------|------------------------------------|
-| All team members                |Containerization & Orchestration(Kubernetes)                |                                    |
 | Yashdeep Prasad                 |Model serving and monitoring platforms                 |https://github.com/Bhumika-Shetty/AdFame/activity?actor=prasad-yashdeep                                    |
 | Bhumika Dinesh Shetty           |Model training and training platforms               | https://github.com/Bhumika-Shetty/AdFame/activity?actor=Bhumika-Shetty                                   |
 | Divij Kapur                     |Continuous X                |https://github.com/Bhumika-Shetty/AdFame/activity?actor=dk-4999                                    |
@@ -92,6 +91,84 @@ optional "difficulty" points you are attempting. -->
 
 <!-- Make sure to clarify how you will satisfy the Unit 3 requirements,  and which 
 optional "difficulty" points you are attempting. -->
+
+**Objective:** Design a cloud-native CI/CD pipeline with staged deployment, infrastructure-as-code (IaC), and automated continuous training to support the video generation and AB testing system.
+
+---
+
+#### **1. Infrastructure-as-Code (IaC) & Cloud-Native Design**
+
+- **Tools:**
+  - **Terraform**: Declaratively define Chameleon infrastructure (VMs, networks, storage) in Git.
+  - **Ansible**: Automate software installation (Docker, Ray, MLFlow) and configuration on provisioned VMs.
+  - **ArgoCD/Helm**: Manage Kubernetes deployments for microservices (LLM, video generation, resolution adjustment).
+- **Immutable Infrastructure**:
+  - All microservices and User Interface (frontend, LLM, video model, etc.) are containerized using Docker.
+  - Updates require rebuilding containers and redeploying via Git-triggered pipelines.
+
+---
+
+#### **2. CI/CD Pipeline Design**
+
+**Trigger:** Code push to `main` branch or manual trigger.  
+**Stages:**
+
+1. **Build & Test**:
+   - Containerize each microservice using Docker.
+   - Run unit tests for frontend, LLM prompt generation, and video model inference.
+2. **Continuous Training**:
+   - **Ray Cluster Integration**: Submit model retraining jobs (e.g., finetuned attention model) to Ray via Argo Workflows.
+   - **Experiment Tracking**: Log metrics (e.g., AB test results) to MLFlow hosted on Chameleon.
+3. **Offline Evaluation**:
+   - Validate model performance on fairness, failure modes, and brand-specific scenarios.
+   - Only register models in MLFlow if evaluation passes thresholds.
+4. **Staging Deployment**:
+   - Deploy to staging using ArgoCD. Mirror production but with fewer replicas.
+5. **Load Testing**:
+   - Simulate concurrent user requests (e.g., 5 parallel video inferences) using Locust.
+6. **Canary Deployment**:
+   - Promote to canary if staging tests pass.
+7. **Production Deployment**:
+   - Full rollout after canary success. Use Kubernetes autoscaling for high traffic.
+
+---
+
+#### **3. Staged Environments**
+
+- **Staging**: Low-resource setup for integration testing.
+- **Canary**: Partial rollout to detect regressions.
+- **Production**: Scalable deployment with GPU nodes.
+
+---
+
+#### **4. Continuous Training Integration**
+
+- **Triggers**:
+  - Scheduled retraining (e.g., weekly).
+  - User feedback from AB tests (stored in DB via Microservice 4).
+- **Data Pipeline**:
+  - Unit 8’s ETL processes ingest new user feedback and production data for retraining.
+- **Optimizations**:
+  - **Ray Train**: Distributed training for large video models (achieves "difficulty points").
+  - **Ray Tune**: Hyperparameter tuning for prompt generation (LLM) and video quality.
+
+---
+
+#### **5. Difficulty Points Attempted**
+
+1. **Distributed Training**: Use Ray Train to parallelize video model training across GPUs.
+2. **Multiple Serving Options**: Compare GPU (high-performance) vs. CPU (cost-effective) inference for video generation.
+3. **Advanced Monitoring**:
+   - **Model Degradation**: Alert on AB test performance drops and trigger retraining.
+
+---
+
+#### **6. Validation**
+
+- **GitHub Repo**: All IaC, Ansible playbooks, and Argo Workflows in version control.
+- **Immutable Artifacts**: Docker images stored in Chameleon’s private registry.
+- **Documentation**: Pipeline flowchart and failure recovery plan (e.g., rollback via Argo Rollouts).
+
 
 
 
