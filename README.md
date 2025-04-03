@@ -77,7 +77,148 @@ diagram, (3) justification for your strategy, (4) relate back to lecture materia
 <!-- Make sure to clarify how you will satisfy the Unit 4 and Unit 5 requirements, 
 and which optional "difficulty" points you are attempting. -->
 
+# 🧠 Brand-Focused Video Diffusion Training System
 
+> Scalable Training, Retraining, and Optimization Pipeline for Domain-Specific Text-to-Video Generation  
+> **Unit 4 & Unit 5 Compliant**
+
+---
+
+## 📌 Project Overview
+
+We fine-tune state-of-the-art open-source text-to-video models such as:
+
+- **Wan 2.1** (T2V-1.3B & 14B)
+- **Open-SORA**
+- **CogVideoX**
+
+Our focus: tailor these models to brand-specific marketing domains using curated video+prompt datasets.
+
+---
+
+## 🔁 Training and Retraining Strategy (Unit 4)
+
+### ✅ Initial Fine-Tuning
+- Brand-focused video dataset (e.g., sportswear commercials)
+- Image + video support using the `finetrainers` library
+
+### 🔁 Retraining via A/B Preference Loop
+1. User enters a prompt
+2. System generates 5 candidate videos
+3. User selects the best one
+4. Prompt + selected video stored in feedback DB
+5. After every 200 selections → **automatic retraining**
+
+> 🔄 Continuous learning loop to evolve with user preference
+
+![Retraining Feedback Loop – placeholder](docs/feedback_loop_diagram.png)
+
+---
+
+## 🎯 Modeling & Model Selection (Unit 4)
+
+### 🔍 Selection Criteria
+- High-quality, coherent video generation
+- Open-source accessibility & fine-tune readiness
+
+| **Model**              | **Task**       | **LoRA VRAM** | **Full FT VRAM** |
+|------------------------|----------------|----------------|------------------|
+| Wan 2.1 (1.3B)         | Text-to-Video  | ~12 GB         | ~24–30 GB        |
+| Wan 2.1 (14B)          | Text-to-Video  | ~30 GB         | ~125+ GB         |
+| Open-SORA (11B)        | Text-to-Video  | ~28 GB         | ~110 GB          |
+| CogVideoX (5B)         | Text-to-Video  | 18–47 GB       | 53–80 GB         |
+
+---
+
+## 🧪 Fine-Tuning Approach
+
+### 🚀 Efficiency Techniques
+- ✅ **LoRA** (Low-Rank Adaptation)
+- ✅ Gradient Accumulation
+- ✅ Layer Freezing
+- ✅ Mixed Precision (fp16 / bf16)
+- ✅ Experimental FP8 support
+
+![LoRA Architecture – placeholder](docs/lora_architecture.png)
+
+### ⚙️ Training Library: `finetrainers`
+- ✅ DDP, FSDP-2, HSDP support
+- ✅ Combined image/video datasets
+- ✅ Precomputation + async streaming
+- ✅ Support for FP8 / future QAT
+
+---
+
+## 🗂 Domain-Specific Dataset
+
+Curated for each brand:
+- 📹 Commercial ads
+- 📱 Social media videos
+- 🖼 Product stills
+- ✍️ Prompt-formatted ad copy
+
+### Dynamic Expansion:
+- Add prompt–video pairs chosen by users in feedback loop
+- Align training with high-engagement content
+
+---
+
+## 🧠 Justification
+
+- Adaptable to various brand styles & aesthetics
+- Avoids overfitting via LoRA & layer freezing
+- Handles complex prompts (e.g., “logo graffiti on wall”)
+- Maintains brand visual consistency
+- Supports evolving user tastes via retraining
+
+---
+
+## ⚙️ Infrastructure & Experimentation (Unit 5)
+
+### ☁️ Training Infrastructure
+- 🧩 Ray Cluster for distributed job scheduling
+- 🧪 MLflow hosted on Chameleon (self-hosted tracker)
+- 🐳 Dockerized training pipeline for portability
+
+![Ray Cluster Architecture – placeholder](docs/ray_cluster_setup.png)
+
+---
+
+## 🧪 Experiment Tracking
+
+| Tool     | Usage                  |
+|----------|------------------------|
+| MLflow   | Track losses, models, metrics, outputs |
+| MinIO    | Store model artifacts  |
+| GitHub   | Version control + README |
+
+---
+
+## 🚦 Advanced Strategies (Extra Difficulty Points)
+
+### 🛡️ Fault-Tolerant Training (Ray Train)
+- Auto-restart from last checkpoint
+- Resilient to spot instance preemption
+
+### 🎛️ Hyperparameter Tuning (Ray Tune)
+- Search: learning rate, LoRA rank, batch size
+- Algorithms: ASHA, PBT, Bayesian Optimization
+
+### 📊 Performance Scaling
+- Compare DDP vs FSDP
+- Plot training time vs # of GPUs
+- Estimate speedup & memory savings
+
+
+## 🧭 Acknowledgments
+
+- [Wan 2.1](https://github.com/wan-developers)
+- [Open-SORA](https://github.com/hpcaitech/Open-Sora)
+- [CogVideoX](https://huggingface.co/THUDM/CogVideoX-5b)
+- [finetrainers](https://github.com/a-r-r-o-w/finetrainers)
+
+
+#### Model serving and monitoring platforms
 # 🎥 Fine-Tuned Video Diffusion Model Serving
 
 This project provides a **RESTful API** using **FastAPI** to generate videos from textual prompts via a fine-tuned **video diffusion model** (up to 14B parameters). Designed for automated marketing content creation, the service meets strict performance and reliability targets with advanced model and system-level optimizations.
