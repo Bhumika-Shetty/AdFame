@@ -23,7 +23,7 @@ link to their contributions in all repos here. -->
 | Yashdeep Prasad                 |Model serving and monitoring platforms                 |https://github.com/Bhumika-Shetty/AdFame/activity?actor=prasad-yashdeep                                    |
 | Bhumika Dinesh Shetty           |Model training and training platforms               | https://github.com/Bhumika-Shetty/AdFame/activity?actor=Bhumika-Shetty                                   |
 | Divij Kapur                     |Continuous X                |https://github.com/Bhumika-Shetty/AdFame/activity?actor=dk-4999                                    |
-| Yashas Harisha                  |Data pipeline                 |                                    |
+| Yashas Harisha                  |Data pipeline                 | https://github.com/Bhumika-Shetty/AdFame/activity?actor=yashas-h                                   |
 
 
 
