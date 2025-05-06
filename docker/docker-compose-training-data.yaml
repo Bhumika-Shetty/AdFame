@@ -7,7 +7,7 @@ services:
     image: python:3.11
     user: root
     volumes:
-      - block-persist-project15:/mnt/block
+      - /mnt/block:/mnt/openvid
     working_dir: /app
     command:
       - bash
@@ -25,7 +25,7 @@ services:
         from concurrent.futures import ThreadPoolExecutor, as_completed
         from tqdm import tqdm
 
-        OUTPUT_DIRECTORY = "/mnt/block"
+        OUTPUT_DIRECTORY = "/mnt/openvid"
         data_folder = os.path.join(OUTPUT_DIRECTORY, "data", "train")
         os.makedirs(data_folder, exist_ok=True)
 
