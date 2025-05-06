@@ -46,23 +46,27 @@ services:
         print("CSV loaded successfully")
 
         # Keywords for filtering
-        fashion_keywords = [
-            'fashion show', 'runway', 'catwalk', 'fashion week', 'model walk', 'model runway',
-            'couture show', 'collection launch', 'fashion presentation'
-        ]
-        male_keywords = ['male model', 'man', 'menswear', 'male fashion', 'groom fashion']
-        female_keywords = ['female model', 'woman', 'womenswear', 'female fashion', 'bride fashion']
+        # fashion_keywords = [
+        #     'fashion show', 'runway', 'catwalk', 'fashion week', 'model walk', 'model runway',
+        #     'couture show', 'collection launch', 'fashion presentation'
+        # ]
+        
+        male_keywords = ['male model', 'man', 'menswear', 'male fashion']
+        female_keywords = ['female model', 'woman', 'womenswear', 'female fashion']
         beauty_keywords = ['beautiful', 'gorgeous', 'stunning', 'elegant', 'chic', 'graceful', 'stylish']
-
+        brand_keywords = ['adidas','nike']
         def is_relevant_fashion_show(caption):
             if not isinstance(caption, str):
                 return False
             caption_lower = caption.lower()
             return (
-                any(fk in caption_lower for fk in fashion_keywords) and
+                 #any(fk in caption_lower for fk in fashion_keywords) and
                 any(mk in caption_lower for mk in male_keywords) and
                 any(fek in caption_lower for fek in female_keywords) and
-                any(bk in caption_lower for bk in beauty_keywords)
+                # any(bk in caption_lower for bk in beauty_keywords) and
+                any(bk in caption_lower for bk in brand_keywords)
+        
+        
             )
 
         # Apply filter
@@ -87,15 +91,19 @@ services:
 
         # Download each CSV file
         for i in range(186):
-            filename = f"OpenVid_part{i}.csv"
-            url = base_url + filename
-            response = requests.get(url)
+          filename = f"OpenVid_part{i}.csv"
+          url = base_url + filename
+          csv_directory = os.path.join("/dev/vdb1/openvid/OpenVid_CSVs", filename)
+          response = requests.get(url)
+          if not os.path.exists(csv_directory):
             if response.status_code == 200:
-                with open(os.path.join("/dev/vdb1/openvid/OpenVid_CSVs", filename), "wb") as f:
+                with open(csv_directory, "wb") as f:
                     f.write(response.content)
                 print(f"Downloaded {filename}")
             else:
                 print(f"Failed to download {filename}")
+          else:
+            print(f"Already exists {filename}")
 
         # Load all mapping files
         mappings = [pd.read_csv(f"/dev/vdb1/openvid/OpenVid_CSVs/OpenVid_part{i}.csv")
