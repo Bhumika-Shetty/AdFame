@@ -64,12 +64,12 @@ services:
         filtered_df = filtered_df.sort_values(by=['aesthetic score', 'motion score'], ascending=[False, False])
         print(f"Found {len(filtered_df)} relevant fashion show videos.")
 
-        os.makedirs("/mnt/block/OpenVid_CSVs", exist_ok=True)
+        os.makedirs("/mnt/openvid/OpenVid_CSVs", exist_ok=True)
         base_url = "https://huggingface.co/datasets/phil329/OpenVid-1M-mapping/resolve/main/video_mappings/"
         for i in range(186):
             filename = f"OpenVid_part{i}.csv"
             url = base_url + filename
-            csv_path = os.path.join("/mnt/block/OpenVid_CSVs", filename)
+            csv_path = os.path.join("/mnt/openvid/OpenVid_CSVs", filename)
             if not os.path.exists(csv_path):
                 r = requests.get(url)
                 if r.status_code == 200:
@@ -81,7 +81,7 @@ services:
             else:
                 print(f"Already exists {filename}")
 
-        mappings = [pd.read_csv(f"/mnt/block/OpenVid_CSVs/OpenVid_part{i}.csv") for i in range(186)]
+        mappings = [pd.read_csv(f"/mnt/openvid/OpenVid_CSVs/OpenVid_part{i}.csv") for i in range(186)]
         full_mapping = pd.concat(mappings)
         merged_df = filtered_df.merge(full_mapping, on="video", how="left")
         print("Data merged successfully")
@@ -157,8 +157,8 @@ services:
             os.remove(zip_file_path)
             return local_found
 
-        with ThreadPoolExecutor(max_workers=7) as executor:
-            futures = {executor.submit(download_and_extract, zip_name): zip_name for zip_name in needed_zips[:7]}  # limited to 1 for demo
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futures = {executor.submit(download_and_extract, zip_name): zip_name for zip_name in needed_zips}  
             for future in tqdm(as_completed(futures), total=len(futures), desc="Overall Progress"):
                 pass
 
