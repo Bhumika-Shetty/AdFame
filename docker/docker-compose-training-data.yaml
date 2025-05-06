@@ -99,16 +99,16 @@ services:
         os.makedirs(zip_folder, exist_ok=True)
         os.makedirs(temp_video_folder, exist_ok=True)
 
-        def download_with_progress(url, dest):
+        def download_with_progress(url, dest_path):
             try:
-                r = requests.get(url, stream=True, timeout=30)
-                if r.status_code != 200:
+                response = requests.get(url, stream=True, timeout=30)
+                if response.status_code != 200:
                     with open(error_log_path, "a") as log:
-                        log.write(f"Invalid URL: {url} ({r.status_code})\n")
+                        log.write(f"Invalid URL: {url} (Status code {response.status_code})\n")
                     return False
-                total = int(r.headers.get('content-length', 0))
-                with open(dest, 'wb') as f, tqdm(total=total, unit='B', unit_scale=True, desc=dest) as bar:
-                    for chunk in r.iter_content(8192):
+                total = int(response.headers.get('content-length', 0))
+                with open(dest_path, 'wb') as f, tqdm(total=total, unit='B', unit_scale=True, desc=dest_path) as bar:
+                    for chunk in response.iter_content(8192):
                         f.write(chunk)
                         bar.update(len(chunk))
                 return True
@@ -158,8 +158,8 @@ services:
             return local_found
 
         with ThreadPoolExecutor(max_workers=7) as executor:
-            futures = {executor.submit(download_and_extract, z): z for z in needed_zips[:7]}  # limited to 1 for demo
-            for f in tqdm(as_completed(futures), total=len(futures), desc="Overall Progress"):
+            futures = {executor.submit(download_and_extract, zip_name): zip_name for zip_name in needed_zips[:7]}  # limited to 1 for demo
+            for future in tqdm(as_completed(futures), total=len(futures), desc="Overall Progress"):
                 pass
 
         print(f"🎉 Completed. Extracted {len(found)} matching videos.")
