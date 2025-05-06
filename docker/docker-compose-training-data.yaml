@@ -1,11 +1,13 @@
 name: fashion-extraction
+volumes:
+  block-persist-project15:
 services:
   extract-fashion-videos:
     container_name: fashion_extraction
     image: python:3.11
     user: root
     volumes:
-      - /mnt/block:/mnt/openvid  # Bind-mount the persistent volume
+      - /mnt/block:/mnt/openvid
     working_dir: /app
     command:
       - bash
@@ -14,142 +16,156 @@ services:
         set -e
         echo "Creating script file..."
         cat > fashion_extraction_script.py << 'EOL'
-import os
-import subprocess
-import pandas as pd
-import requests
-import shutil
-import zipfile
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from tqdm import tqdm
+        import os
+        import subprocess
+        import pandas as pd
+        import requests
+        import shutil
+        import zipfile
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        from tqdm import tqdm
 
-OUTPUT_DIRECTORY = "/mnt/openvid"
-data_folder = os.path.join(OUTPUT_DIRECTORY, "data", "train")
-os.makedirs(data_folder, exist_ok=True)
+        OUTPUT_DIRECTORY = "/mnt/openvid"
+        data_folder = os.path.join(OUTPUT_DIRECTORY, "data", "train")
+        os.makedirs(data_folder, exist_ok=True)
 
-csv_url = "https://huggingface.co/datasets/nkp37/OpenVid-1M/resolve/main/data/train/OpenVid-1M.csv"
-csv_path = os.path.join(data_folder, "OpenVid-1M.csv")
-if not os.path.exists(csv_path):
-    subprocess.run(["wget", "-O", csv_path, csv_url], check=True)
-    print(f"Downloaded CSV to {csv_path}")
+        csv_url = "https://huggingface.co/datasets/nkp37/OpenVid-1M/resolve/main/data/train/OpenVid-1M.csv"
+        csv_path = os.path.join(data_folder, "OpenVid-1M.csv")
+        if not os.path.exists(csv_path):
+            command = ["wget", "-O", csv_path, csv_url]
+            try:
+                subprocess.run(command, check=True)
+                print(f"Downloaded {csv_url} to {csv_path}")
+            except subprocess.CalledProcessError as e:
+                print(f"Failed to download {csv_url}: {e}")
 
-df = pd.read_csv(csv_path)
-print("CSV loaded successfully")
+        df = pd.read_csv(csv_path)
+        print("CSV loaded successfully")
 
-male_keywords = ['male model', 'man', 'menswear', 'male fashion']
-female_keywords = ['female model', 'woman', 'womenswear', 'female fashion']
-brand_keywords = ['adidas','nike']
+        male_keywords = ['male model', 'man', 'menswear', 'male fashion']
+        female_keywords = ['female model', 'woman', 'womenswear', 'female fashion']
+        brand_keywords = ['adidas','nike']
 
-def is_relevant_fashion_show(caption):
-    if not isinstance(caption, str):
-        return False
-    caption_lower = caption.lower()
-    return (
-        any(mk in caption_lower for mk in male_keywords) and
-        any(fek in caption_lower for fek in female_keywords) and
-        any(bk in caption_lower for bk in brand_keywords)
-    )
+        def is_relevant_fashion_show(caption):
+            if not isinstance(caption, str):
+                return False
+            caption_lower = caption.lower()
+            return (
+                any(mk in caption_lower for mk in male_keywords) and
+                any(fek in caption_lower for fek in female_keywords) and
+                any(bk in caption_lower for bk in brand_keywords)
+            )
 
-filtered_df = df[df['caption'].apply(is_relevant_fashion_show)]
-filtered_df = filtered_df[[
-    'video', 'caption', 'aesthetic score', 'motion score',
-    'temporal consistency score', 'seconds'
-]].rename(columns={'seconds': 'duration_seconds'})
-filtered_df = filtered_df.sort_values(by=['aesthetic score', 'motion score'], ascending=[False, False])
+        filtered_df = df[df['caption'].apply(is_relevant_fashion_show)]
+        filtered_df = filtered_df[[
+            'video', 'caption', 'aesthetic score', 'motion score',
+            'temporal consistency score', 'seconds'
+        ]].rename(columns={'seconds': 'duration_seconds'})
+        filtered_df = filtered_df.sort_values(by=['aesthetic score', 'motion score'], ascending=[False, False])
+        print(f"Found {len(filtered_df)} relevant fashion show videos.")
 
-print(f"Found {len(filtered_df)} relevant fashion show videos.")
+        os.makedirs("/mnt/block/OpenVid_CSVs", exist_ok=True)
+        base_url = "https://huggingface.co/datasets/phil329/OpenVid-1M-mapping/resolve/main/video_mappings/"
+        for i in range(186):
+            filename = f"OpenVid_part{i}.csv"
+            url = base_url + filename
+            csv_path = os.path.join("/mnt/block/OpenVid_CSVs", filename)
+            if not os.path.exists(csv_path):
+                r = requests.get(url)
+                if r.status_code == 200:
+                    with open(csv_path, "wb") as f:
+                        f.write(r.content)
+                    print(f"Downloaded {filename}")
+                else:
+                    print(f"Failed to download {filename}")
+            else:
+                print(f"Already exists {filename}")
 
-os.makedirs(f"{OUTPUT_DIRECTORY}/OpenVid_CSVs", exist_ok=True)
+        mappings = [pd.read_csv(f"/mnt/block/OpenVid_CSVs/OpenVid_part{i}.csv") for i in range(186)]
+        full_mapping = pd.concat(mappings)
+        merged_df = filtered_df.merge(full_mapping, on="video", how="left")
+        print("Data merged successfully")
 
-base_url = "https://huggingface.co/datasets/phil329/OpenVid-1M-mapping/resolve/main/video_mappings/"
-for i in range(186):
-    filename = f"OpenVid_part{i}.csv"
-    csv_path = os.path.join(OUTPUT_DIRECTORY, "OpenVid_CSVs", filename)
-    if not os.path.exists(csv_path):
-        response = requests.get(base_url + filename)
-        if response.status_code == 200:
-            with open(csv_path, "wb") as f:
-                f.write(response.content)
-            print(f"Downloaded {filename}")
-        else:
-            print(f"Failed to download {filename}")
-    else:
-        print(f"Already exists {filename}")
+        needed_zips = merged_df["zip_file"].unique()
+        print(f"Need to download {len(needed_zips)} zip files.")
+        needed_paths = merged_df.groupby('zip_file')['video_path'].unique().to_dict()
+        uuid_to_prompt = dict(zip(merged_df["video"], merged_df["caption"]))
+        uuid_set = set(merged_df["video"])
+        found = {}
 
-mappings = [pd.read_csv(os.path.join(OUTPUT_DIRECTORY, "OpenVid_CSVs", f"OpenVid_part{i}.csv")) for i in range(186)]
-full_mapping = pd.concat(mappings)
-merged_df = filtered_df.merge(full_mapping, on="video", how="left")
-print("Data merged successfully")
+        error_log_path = os.path.join(OUTPUT_DIRECTORY, "download_log.txt")
+        zip_folder = os.path.join(OUTPUT_DIRECTORY, "zip_files")
+        temp_video_folder = os.path.join(OUTPUT_DIRECTORY, "only_fashion_show_dataset")
+        os.makedirs(zip_folder, exist_ok=True)
+        os.makedirs(temp_video_folder, exist_ok=True)
 
-needed_zips = merged_df["zip_file"].unique()
-print(f"Need to download {len(needed_zips)} zip files.")
-needed_paths = merged_df.groupby('zip_file')['video_path'].unique().to_dict()
+        def download_with_progress(url, dest_path):
+            try:
+                response = requests.get(url, stream=True, timeout=30)
+                if response.status_code != 200:
+                    with open(error_log_path, "a") as log:
+                        log.write(f"Invalid URL: {url} (Status code {response.status_code})\n")
+                    return False
+                with open(dest_path, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+                return True
+            except requests.RequestException as e:
+                with open(error_log_path, "a") as log:
+                    log.write(f"Download error for {url}: {e}\n")
+                return False
 
-uuid_to_prompt = dict(zip(merged_df["video"], merged_df["caption"]))
-uuid_set = set(merged_df["video"])
-found = {}
+        def extract_video(zip_name):
+            local_found = {}
+            zip_file_path = os.path.join(zip_folder, zip_name)
+            target_path = temp_video_folder
 
-error_log_path = os.path.join(OUTPUT_DIRECTORY, "download_log.txt")
-zip_folder = os.path.join(OUTPUT_DIRECTORY, "zip_files")
-temp_video_folder = os.path.join(OUTPUT_DIRECTORY, "only_fashion_show_dataset")
-os.makedirs(zip_folder, exist_ok=True)
-os.makedirs(temp_video_folder, exist_ok=True)
+            try:
+                with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+                    for path in needed_paths[zip_name]:
+                        command = ['unzip', '-j', zip_file_path, path, '-d', target_path]
+                        try:
+                            subprocess.run(command, check=True)
+                            print(f"✅ Extracted '{path}'")
+                        except subprocess.CalledProcessError as e:
+                            print(f"An error occurred: {e}")
+                        final_idx = len(found) + 1
+                        final_video_path = os.path.join(temp_video_folder, f"a ({final_idx}).mp4")
+                        final_prompt_path = os.path.join(temp_video_folder, f"a ({final_idx}).txt")
+                        if os.path.exists(final_video_path):
+                            os.remove(final_video_path)
+                        os.rename(os.path.join(target_path, os.path.basename(path)), final_video_path)
+                        with open(final_prompt_path, "w", encoding="utf-8") as f:
+                            f.write(uuid_to_prompt[os.path.basename(path)])
+                        found[os.path.basename(path)] = True
+                return local_found
+            except zipfile.BadZipFile as e:
+                with open(error_log_path, "a") as log:
+                    log.write(f"Bad ZIP file error ({zip_file_path}): {e}\n")
+                return local_found
 
-def download_with_progress(url, dest_path):
-    try:
-        response = requests.get(url, stream=True, timeout=30)
-        if response.status_code != 200:
-            with open(error_log_path, "a") as log:
-                log.write(f"Invalid URL: {url} (Status code {response.status_code})\n")
-            return False
-        with open(dest_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-        return True
-    except requests.RequestException as e:
-        with open(error_log_path, "a") as log:
-            log.write(f"Download error for {url}: {e}\n")
-        return False
+        def download_and_extract(zip_name):
+            local_found = {}
+            zip_file_path = os.path.join(zip_folder, zip_name)
+            if not os.path.exists(zip_file_path):
+                url = f"https://huggingface.co/datasets/nkp37/OpenVid-1M/resolve/main/{zip_name}"
+                if not download_with_progress(url, zip_file_path):
+                    return local_found
+            local_found = extract_video(zip_name)
+            os.remove(zip_file_path)
+            return local_found
 
-def extract_video(zip_name):
-    zip_file_path = os.path.join(zip_folder, zip_name)
-    for path in needed_paths[zip_name]:
-        try:
-            subprocess.run(['unzip', '-j', zip_file_path, path, '-d', temp_video_folder], check=True)
-            final_idx = len(found) + 1
-            final_video_path = os.path.join(temp_video_folder, f"a ({final_idx}).mp4")
-            final_prompt_path = os.path.join(temp_video_folder, f"a ({final_idx}).txt")
-            if os.path.exists(final_video_path):
-                os.remove(final_video_path)
-            os.rename(os.path.join(temp_video_folder, os.path.basename(path)), final_video_path)
-            with open(final_prompt_path, "w", encoding="utf-8") as f:
-                f.write(uuid_to_prompt[os.path.basename(path)])
-            found[os.path.basename(path)] = True
-        except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to extract from {zip_file_path}: {e}")
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futures = [executor.submit(download_and_extract, zip_name) for zip_name in needed_zips[:1]]
+            for future in as_completed(futures):
+                _ = future.result()
 
-def download_and_extract(zip_name):
-    zip_file_path = os.path.join(zip_folder, zip_name)
-    if not os.path.exists(zip_file_path):
-        url = f"https://huggingface.co/datasets/nkp37/OpenVid-1M/resolve/main/{zip_name}"
-        if not download_with_progress(url, zip_file_path):
-            return
-    extract_video(zip_name)
-    os.remove(zip_file_path)
-
-with ThreadPoolExecutor(max_workers=3) as executor:
-    futures = [executor.submit(download_and_extract, zip_name) for zip_name in needed_zips[:1]]
-    for future in as_completed(futures):
-        pass
-
-print(f"🎉 Completed. Extracted {len(found)} matching videos.")
-EOL
+        print(f"🎉 Completed. Extracted {len(found)} matching videos.")
+        EOL
 
         echo "Installing required packages..."
         pip install pandas requests tqdm
 
         echo "Running fashion extraction script..."
         python fashion_extraction_script.py
-
-        echo "Extraction completed. Check /mnt/openvid for results."
