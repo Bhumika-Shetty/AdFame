@@ -106,10 +106,11 @@ services:
                     with open(error_log_path, "a") as log:
                         log.write(f"Invalid URL: {url} (Status code {response.status_code})\n")
                     return False
-                with open(dest_path, 'wb') as f:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
+                total = int(response.headers.get('content-length', 0))
+                with open(dest_path, 'wb') as f, tqdm(total=total, unit='B', unit_scale=True, desc=dest_path) as bar:
+                    for chunk in response.iter_content(8192):
+                        f.write(chunk)
+                        bar.update(len(chunk))
                 return True
             except requests.RequestException as e:
                 with open(error_log_path, "a") as log:
@@ -156,10 +157,10 @@ services:
             os.remove(zip_file_path)
             return local_found
 
-        with ThreadPoolExecutor(max_workers=3) as executor:
-            futures = [executor.submit(download_and_extract, zip_name) for zip_name in needed_zips[:1]]
-            for future in as_completed(futures):
-                _ = future.result()
+        with ThreadPoolExecutor(max_workers=7) as executor:
+            futures = {executor.submit(download_and_extract, zip_name): zip_name for zip_name in needed_zips[:7]}  # limited to 1 for demo
+            for future in tqdm(as_completed(futures), total=len(futures), desc="Overall Progress"):
+                pass
 
         print(f"🎉 Completed. Extracted {len(found)} matching videos.")
         EOL
