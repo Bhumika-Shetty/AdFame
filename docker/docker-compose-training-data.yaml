@@ -19,7 +19,7 @@ services:
         echo "Cleaning up existing contents of container..."
         rclone delete chi_tacc:$RCLONE_CONTAINER --rmdirs || true
 
-        rclone copy /mnt/openvid/only_fashion_show_dataset chi_tacc:$RCLONE_CONTAINER \
+        rclone copy /mnt/openvid chi_tacc:$RCLONE_CONTAINER \
         --progress \
         --transfers=32 \
         --checkers=16 \
