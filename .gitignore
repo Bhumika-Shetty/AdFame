@@ -24,3 +24,5 @@ data
 .jekyll-cache
 _site
 .vscode
+
+trainig_pipeline/venv/

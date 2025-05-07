@@ -1,0 +1,3 @@
+[submodule "trainig_pipeline/diffusion-pipe"]
+	path = trainig_pipeline/diffusion-pipe
+	url = https://github.com/learn2train/diffusion-pipe.git
