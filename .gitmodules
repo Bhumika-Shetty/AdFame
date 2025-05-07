@@ -1,3 +1,4 @@
 [submodule "model_training/diffusion-pipe"]
 	path = model_training/diffusion-pipe
 	url = https://github.com/learn2train/diffusion-pipe
+	branch = main
