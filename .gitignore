@@ -25,4 +25,4 @@ data
 _site
 .vscode
 
-model_training/venv/
+trainig_pipeline/venv/
