@@ -1,6 +1,7 @@
 [submodule "trainig_pipeline/diffusion-pipe"]
 	path = trainig_pipeline/diffusion-pipe
-	url = https://github.com/learn2train/diffusion-pipe.git
+	url = https://github.com/Bhumika-Shetty/diffusion-pipe.git
+	branch = main_training
 [submodule "inference_pipeline/DiffSynth-Studio"]
 	path = inference_pipeline/DiffSynth-Studio
 	url = https://github.com/modelscope/DiffSynth-Studio.git
