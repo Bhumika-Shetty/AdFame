@@ -2,32 +2,6 @@ name: fashion-extraction
 volumes:
   block-persist-project15:
 services:
-  load-data:
-    container_name: etl_load_data
-    image: rclone/rclone:latest
-    volumes:
-      - /mnt/block:/mnt/openvid
-      - ~/.config/rclone/rclone.conf:/root/.config/rclone/rclone.conf:ro
-    entrypoint: /bin/sh
-    command:
-      - -c
-      - |
-        if [ -z "$RCLONE_CONTAINER" ]; then
-          echo "ERROR: RCLONE_CONTAINER is not set"
-          exit 1
-        fi
-        echo "Cleaning up existing contents of container..."
-        rclone delete chi_tacc:$RCLONE_CONTAINER --rmdirs || true
-
-        rclone copy /mnt/openvid chi_tacc:$RCLONE_CONTAINER \
-        --progress \
-        --transfers=32 \
-        --checkers=16 \
-        --multi-thread-streams=4 \
-        --fast-list
-
-        echo "Listing directories in container after load stage:"
-        rclone lsd chi_tacc:$RCLONE_CONTAINER
         
   extract-fashion-videos:
     container_name: fashion_extraction
@@ -78,8 +52,8 @@ services:
                 return False
             caption_lower = caption.lower()
             return (
-                any(mk in caption_lower for mk in male_keywords) and
-                any(fek in caption_lower for fek in female_keywords) and
+                (any(mk in caption_lower for mk in male_keywords) or
+                any(fek in caption_lower for fek in female_keywords)) and
                 any(bk in caption_lower for bk in brand_keywords)
             )
 
@@ -197,3 +171,85 @@ services:
 
         echo "Running fashion extraction script..."
         python fashion_extraction_script.py
+
+  split-fashion-data:
+    container_name: split_fashion_data
+    image: python:3.11
+    user: root
+    volumes:
+      - /mnt/block:/mnt/openvid
+    working_dir: /app
+    command:
+      - bash
+      - -c
+      - |
+        echo "Creating split script..."
+        cat > split_fashion_data.py << 'EOF'
+        import os
+        import random
+        import shutil
+
+        temp_video_folder = "/mnt/openvid/only_fashion_show_dataset"
+        print("Splitting dataset into train, validate, and production...")
+
+        video_files = sorted([f for f in os.listdir(temp_video_folder) if f.endswith(".mp4")])
+        random.seed(42)
+        random.shuffle(video_files)
+
+        n = len(video_files)
+        train_cutoff = int(0.7 * n)
+        validate_cutoff = int(0.85 * n)
+
+        splits = {
+            "train": video_files[:train_cutoff],
+            "validate": video_files[train_cutoff:validate_cutoff],
+            "production": video_files[validate_cutoff:]
+        }
+
+        for split_name, files in splits.items():
+            split_dir = os.path.join(temp_video_folder, split_name)
+            os.makedirs(split_dir, exist_ok=True)
+            for f in files:
+                txt_file = f.replace(".mp4", ".txt")
+                src_video = os.path.join(temp_video_folder, f)
+                src_txt = os.path.join(temp_video_folder, txt_file)
+                dst_video = os.path.join(split_dir, f)
+                dst_txt = os.path.join(split_dir, txt_file)
+                if os.path.exists(src_video):
+                    shutil.move(src_video, dst_video)
+                if os.path.exists(src_txt):
+                    shutil.move(src_txt, dst_txt)
+
+        print("✅ Dataset successfully split.")
+        EOF
+
+        echo "Running split script..."
+        python split_fashion_data.py
+
+    load-data:
+    container_name: etl_load_data
+    image: rclone/rclone:latest
+    volumes:
+      - /mnt/block:/mnt/openvid
+      - ~/.config/rclone/rclone.conf:/root/.config/rclone/rclone.conf:ro
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        if [ -z "$RCLONE_CONTAINER" ]; then
+          echo "ERROR: RCLONE_CONTAINER is not set"
+          exit 1
+        fi
+        echo "Cleaning up existing contents of container..."
+        rclone delete chi_tacc:$RCLONE_CONTAINER --rmdirs || true
+
+        rclone copy /mnt/openvid chi_tacc:$RCLONE_CONTAINER \
+        --progress \
+        --transfers=32 \
+        --checkers=16 \
+        --multi-thread-streams=4 \
+        --fast-list
+
+        echo "Listing directories in container after load stage:"
+        rclone lsd chi_tacc:$RCLONE_CONTAINER
+
