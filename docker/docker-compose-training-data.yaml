@@ -226,7 +226,7 @@ services:
         echo "Running split script..."
         python split_fashion_data.py
 
-    load-data:
+  load-data:
     container_name: etl_load_data
     image: rclone/rclone:latest
     volumes:
