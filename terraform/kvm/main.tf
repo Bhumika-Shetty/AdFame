@@ -1,19 +1,3 @@
-terraform {
-  required_providers {
-    openstack = {
-      source  = "terraform-provider-openstack/openstack"
-      version = ">= 3.0.0"
-    }
-  }
-}
-
-provider "openstack" {
-  auth_url                    = var.auth_url
-  region                      = var.region
-  application_credential_id   = var.application_credential_id
-  application_credential_secret = var.application_credential_secret
-}
-
 # Pull network info
 data "openstack_networking_network_v2" "network" {
   name = var.network_name
