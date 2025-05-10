@@ -33,7 +33,6 @@ resource "openstack_compute_instance_v2" "controller" {
   name            = "controller-project15"
   image_name      = var.image_name
   flavor_name     = var.flavor_name
-  key_pair        = openstack_compute_keypair_v2.keypair.name
   security_groups = ["default"]
 
   network {
