@@ -28,4 +28,5 @@ _site
 trainig_pipeline/venv/
 inference_pipeline/Enpoint_Serving/models/
 
-
+/inference_pipeline/Evaluation/mlruns
+inference_pipeline/Evaluation/models
