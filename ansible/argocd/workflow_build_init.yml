@@ -1,0 +1,44 @@
+---
+- name: Run AdFame Initial Build Workflow
+  hosts: node1
+  become: yes
+  vars:
+    repo_url: https://github.com/Bhumika-Shetty/AdFame.git
+    repo_dest: /tmp/AdFame-iac
+    workflow_file: workflows/build-initial.yaml
+    argo_namespace: argo
+
+  tasks:
+    - name: Clone repo
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ repo_dest }}"
+        version: main
+
+    - name: Submit workflow
+      command: kubectl -n {{ argo_namespace }} create -f {{ repo_dest }}/{{ workflow_file }}
+      register: wf_submit
+
+    - name: Extract name
+      set_fact:
+        wf_name: "{{ wf_submit.stdout.split(' ')[0].split('/')[1] }}"
+
+    - name: Wait for result
+      shell: |
+        kubectl -n {{ argo_namespace }} wait --for=condition=Completed workflow/{{ wf_name }} --timeout=600s
+      register: wf_status
+      failed_when: wf_status.rc != 0
+
+    - name: Get result
+      shell: |
+        kubectl -n {{ argo_namespace }} get workflow {{ wf_name }} -o jsonpath="{.status.phase}"
+      register: wf_phase
+
+    - name: Output
+      debug:
+        msg: "Workflow finished with status: {{ wf_phase.stdout }}"
+
+    - name: Fail if not Succeeded
+      fail:
+        msg: "Workflow failed: {{ wf_phase.stdout }}"
+      when: wf_phase.stdout != "Succeeded"

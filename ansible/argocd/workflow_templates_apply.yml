@@ -1,0 +1,35 @@
+---
+- name: Clone repo and apply WorkflowTemplates
+  hosts: node1
+  become: yes
+  vars:
+    repo_url: https://github.com/Bhumika-Shetty/AdFame.git
+    repo_dest: /tmp/AdFame-iac
+    workflow_dir: workflows
+    argo_namespace: argo
+    templates:
+      - build-container-image.yaml
+      - deploy-container-image.yaml
+      - promote-model.yaml
+      - train-model.yaml
+
+  tasks:
+    - name: Clone repo
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ repo_dest }}"
+        version: main
+
+    - name: Apply templates
+      command: kubectl apply -n {{ argo_namespace }} -f {{ repo_dest }}/{{ workflow_dir }}/{{ item }}
+      loop: "{{ templates }}"
+      loop_control:
+        label: "{{ item }}"
+
+    - name: Show installed templates
+      command: kubectl get workflowtemplates -n {{ argo_namespace }}
+      register: wf_list
+
+    - name: Output
+      debug:
+        var: wf_list.stdout
