@@ -1,1 +1,28 @@
+name: fashion-extraction
+volumes:
+  block-persist-project15:
+services:
+  
+  load-data:
+    container_name: etl_load_data
+    image: rclone/rclone:latest
+    volumes:
+      - {video location}
+      - ~/.config/rclone/rclone.conf:/root/.config/rclone/rclone.conf:ro
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        if [ -z "$RCLONE_CONTAINER" ]; then
+          echo "ERROR: RCLONE_CONTAINER is not set"
+          exit 1
+        fi
+		rclone copy {location} chi_tacc:$RCLONE_CONTAINER \
+        --progress \
+        --transfers=32 \
+        --checkers=16 \
+        --multi-thread-streams=4 \
+        --fast-list
 
+        echo "Listing directories in container after load stage:"
+        rclone lsd chi_tacc:$RCLONE_CONTAINER
