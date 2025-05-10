@@ -26,3 +26,6 @@ _site
 .vscode
 
 trainig_pipeline/venv/
+inference_pipeline/Enpoint_Serving/models/
+
+
