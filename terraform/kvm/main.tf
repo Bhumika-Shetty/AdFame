@@ -6,7 +6,6 @@ data "openstack_networking_network_v2" "network" {
 # Keypair
 resource "openstack_compute_keypair_v2" "keypair" {
   name       = var.keypair_name
-  public_key = file(var.public_key_path)
 }
 
 # Create dedicated port for controller

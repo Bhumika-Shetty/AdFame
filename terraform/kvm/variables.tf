@@ -83,3 +83,9 @@ variable "minio_root_password" {
   type        = string
   sensitive   = true
 }
+
+# Keypair Variables
+variable "keypair_name" {
+  description = "id_rsa_chameleon"
+  type        = string
+}
