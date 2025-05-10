@@ -16,6 +16,13 @@ variable "application_credential_secret" {
   default     = "53Hr7TYYlywzzcXnOWBAKFB394V61zEVfXH_SAsXhThZGzyinuDkHHbM8-ypystvIOPIJdRK90DVfrvLLqsTeg"
 }
 
+variable "keypair_name" {
+  description = "Name of the SSH key pair"
+}
+
+variable "public_key_path" {
+  description = "Path to the public key file"
+}
 
 variable "network_name" {
   default = "private_net_project15"
