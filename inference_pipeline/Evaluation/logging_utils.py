@@ -1,59 +1,60 @@
-import os
+import mlflow
 import psutil
-import time
-import logging
+import GPUtil
+import torch
 
-try:
-    import torch
-    TORCH_AVAILABLE = True
-except ImportError:
-    TORCH_AVAILABLE = False
+def log_all_system_metrics():
+    # CPU & RAM
+    cpu_usage = psutil.cpu_percent(interval=1)
+    ram = psutil.virtual_memory()
+    mlflow.log_metric("cpu_usage_percent", cpu_usage)
+    mlflow.log_metric("ram_usage_percent", ram.percent)
+    mlflow.log_metric("ram_used_gb", ram.used / (1024 ** 3))
+    mlflow.log_metric("ram_total_gb", ram.total / (1024 ** 3))
 
-# Setup basic logging
-logging.basicConfig(level=logging.INFO)
+    # GPU (if available)
+    gpus = GPUtil.getGPUs()
+    if gpus:
+        gpu = gpus[0]  # Assumes single-GPU setup
+        mlflow.log_metric("gpu_usage_percent", gpu.load * 100)
+        mlflow.log_metric("gpu_mem_used_mb", gpu.memoryUsed)
+        mlflow.log_metric("gpu_mem_total_mb", gpu.memoryTotal)
+        mlflow.log_metric("gpu_mem_util_percent", gpu.memoryUtil * 100)
+        mlflow.log_param("gpu_name", gpu.name)
 
+def log_model_info(model, model_name: str, model_path: str = None, device: str = "cpu"):
+    mlflow.log_param(f"{model_name}_device", device)
+    if model_path:
+        mlflow.log_param(f"{model_name}_path", model_path)
+    num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    mlflow.log_metric(f"{model_name}_num_params", num_params)
+import mlflow
+import psutil
+import GPUtil
+import torch
 
-def log_cpu_usage():
-    cpu_percent = psutil.cpu_percent(interval=1)
-    logging.info(f"CPU Usage: {cpu_percent}%")
-    return cpu_percent
+def log_all_system_metrics():
+    # CPU & RAM
+    cpu_usage = psutil.cpu_percent(interval=1)
+    ram = psutil.virtual_memory()
+    mlflow.log_metric("cpu_usage_percent", cpu_usage)
+    mlflow.log_metric("ram_usage_percent", ram.percent)
+    mlflow.log_metric("ram_used_gb", ram.used / (1024 ** 3))
+    mlflow.log_metric("ram_total_gb", ram.total / (1024 ** 3))
 
+    # GPU (if available)
+    gpus = GPUtil.getGPUs()
+    if gpus:
+        gpu = gpus[0]  # Assumes single-GPU setup
+        mlflow.log_metric("gpu_usage_percent", gpu.load * 100)
+        mlflow.log_metric("gpu_mem_used_mb", gpu.memoryUsed)
+        mlflow.log_metric("gpu_mem_total_mb", gpu.memoryTotal)
+        mlflow.log_metric("gpu_mem_util_percent", gpu.memoryUtil * 100)
+        mlflow.log_param("gpu_name", gpu.name)
 
-def log_memory_usage():
-    mem = psutil.virtual_memory()
-    logging.info(f"Memory Usage: {mem.percent}% ({mem.used / 1e9:.2f}GB/{mem.total / 1e9:.2f}GB)")
-    return mem.percent, mem.used, mem.total
-
-
-def log_disk_usage(path="/"):
-    disk = psutil.disk_usage(path)
-    logging.info(f"Disk Usage ({path}): {disk.percent}% ({disk.used / 1e9:.2f}GB/{disk.total / 1e9:.2f}GB)")
-    return disk.percent, disk.used, disk.total
-
-
-def log_gpu_usage():
-    if TORCH_AVAILABLE and torch.cuda.is_available():
-        gpu_stats = []
-        for i in range(torch.cuda.device_count()):
-            mem_alloc = torch.cuda.memory_allocated(i) / 1e9
-            mem_total = torch.cuda.get_device_properties(i).total_memory / 1e9
-            util = mem_alloc / mem_total * 100 if mem_total > 0 else 0
-            logging.info(f"GPU {i}: {util:.2f}% ({mem_alloc:.2f}GB/{mem_total:.2f}GB)")
-            gpu_stats.append((util, mem_alloc, mem_total))
-        return gpu_stats
-    else:
-        logging.info("No GPU available or torch not installed.")
-        return None
-
-
-def log_all_system_metrics(disk_path="/"):
-    """Log all system metrics and return as a dict."""
-    metrics = {}
-    metrics['cpu'] = log_cpu_usage()
-    mem_percent, mem_used, mem_total = log_memory_usage()
-    metrics['memory'] = {'percent': mem_percent, 'used': mem_used, 'total': mem_total}
-    disk_percent, disk_used, disk_total = log_disk_usage(disk_path)
-    metrics['disk'] = {'percent': disk_percent, 'used': disk_used, 'total': disk_total}
-    gpu_stats = log_gpu_usage()
-    metrics['gpu'] = gpu_stats
-    return metrics 
+def log_model_info(model, model_name: str, model_path: str = None, device: str = "cpu"):
+    mlflow.log_param(f"{model_name}_device", device)
+    if model_path:
+        mlflow.log_param(f"{model_name}_path", model_path)
+    num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    mlflow.log_metric(f"{model_name}_num_params", num_params)
