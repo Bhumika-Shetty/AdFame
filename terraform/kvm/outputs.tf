@@ -35,18 +35,6 @@ output "minio_secret_key" {
   sensitive   = true
 }
 
-output "postgres_connection_string_internal" {
-  description = "PostgreSQL connection string for internal use (e.g., from MLflow container)"
-  value       = var.create_kvm_node ? "postgresql://${var.postgres_user}:${var.postgres_password}@postgres:5432/${var.postgres_db}" : "KVM node not created"
-  sensitive   = true
-}
-
-output "postgres_connection_string_external" {
-  description = "PostgreSQL connection string for external use (if needed, requires SG rule update)"
-  value       = var.create_kvm_node ? "postgresql://${var.postgres_user}:${var.postgres_password}@${openstack_networking_floatingip_v2.fip_kvm_group15_project[0].address}:5432/${var.postgres_db}" : "KVM node not created"
-  sensitive   = true
-}
-
 output "gpu_node_floating_ip" {
   description = "Floating IP address of the GPU node (CHI@TACC)"
   value       = var.create_gpu_node ? openstack_networking_floatingip_v2.fip_gpu_group15_project[0].address : "GPU node not created"
