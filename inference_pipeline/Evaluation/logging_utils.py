@@ -56,4 +56,24 @@ def log_all_system_metrics(disk_path="/"):
     metrics['disk'] = {'percent': disk_percent, 'used': disk_used, 'total': disk_total}
     gpu_stats = log_gpu_usage()
     metrics['gpu'] = gpu_stats
-    return metrics 
+    return metrics
+
+
+def log_model_info(model, model_name=None, model_path=None, device=None):
+    """
+    Log information about a loaded model.
+    Args:
+        model: The model object (can be any type).
+        model_name (str, optional): Name or type of the model.
+        model_path (str, optional): Path to the model file.
+        device (str, optional): Device on which the model is loaded.
+    """
+    info = f"Model info: "
+    if model_name is not None:
+        info += f"name={model_name}, "
+    info += f"class={type(model).__name__}, "
+    if model_path is not None:
+        info += f"path={model_path}, "
+    if device is not None:
+        info += f"device={device}, "
+    logging.info(info.rstrip(', ')) 

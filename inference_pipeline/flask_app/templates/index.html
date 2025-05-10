@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Generation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Video Generation Service</h1>
+        <form method="POST">
+            <label for="prompt">Enter your prompt:</label><br>
+            <textarea id="prompt" name="prompt" rows="4" cols="50"></textarea><br><br>
+            <input type="submit" value="Generate Video">
+        </form>
+
+        {% if video_path %}
+            <h2>Generated Video:</h2>
+            <video width="640" height="360" controls>
+                <source src="{{ url_for('static', filename=video_path) }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        {% elif error_message %}
+            <p style="color: red;">{{ error_message }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>

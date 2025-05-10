@@ -59,7 +59,7 @@ from modelscope import snapshot_download
 
 import sys
 sys.path.append(os.path.dirname(__file__))
-from logging_utils import log_all_system_metrics
+from logging_utils import log_all_system_metrics, log_model_info
 
 # Download models
 # snapshot_download("Wan-AI/Wan2.1-T2V-1.3B", local_dir="models/Wan-AI/Wan2.1-T2V-1.3B")
@@ -242,13 +242,13 @@ def run_evaluation(out="eval_outputs"):
     # Log system metrics before evaluation
     log_all_system_metrics()
     pipe = load_pipeline()
+    log_model_info(pipe, model_name="WanVideoPipeline", model_path=str(MODEL_PATHS), device=DEVICE)
     clip_model, preprocess = clip.load("ViT-B/32", device=DEVICE)
-
+    log_model_info(clip_model, model_name="CLIP ViT-B/32", device=DEVICE)
     with mlflow.start_run(run_name=datetime.now().strftime("eval_%Y%m%d_%H%M%S")):
         for cfg in CONFIGS:
             m = evaluate_config(pipe, STANDARD_PROMPTS + DOMAIN_PROMPTS, cfg, clip_model, preprocess)
             mlflow.log_metrics({f"{cfg['name']}_{k}": v for k, v in m.items()})
-
     print("✅ Evaluation run complete – results in MLflow UI.")
 
 # ───────────────────────────── Single Local Video Evaluation ─────────────────────────────
@@ -268,6 +268,7 @@ def evaluate_local_video(video_path: str, prompt: str, clip_model, preprocess, h
     """
     # Log system metrics before evaluation
     log_all_system_metrics()
+    log_model_info(clip_model, model_name="CLIP ViT-B/32", device=DEVICE)
     metrics = {}
     vid = load_video_from_path(video_path, height=height, width=width)
     tens = video_to_tensor(vid)
