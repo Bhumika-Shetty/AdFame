@@ -1,24 +1,17 @@
-# Configure the OpenStack Provider for KVM@TACC (Default)
+# Configure the OpenStack Provider for KVM@TACC with alias
 provider "openstack" {
+  alias = "kvm" 
   cloud = "kvm-tacc"
 }
 
-# Configure the OpenStack Provider for CHI@TACC
+# Configure the OpenStack Provider for CHI@TACC with alias
 provider "openstack" {
-  alias = "tacc" # Alias for the CHI@TACC provider
+  alias = "tacc"
   cloud = "tacc"
 }
 
 # Terraform settings
 terraform {
-
-  cloud {
-    organization = "MLOps-Project" # Replace with your actual organization name
-    workspaces {
-      name = "mlops-chameleon-prod" # Replace with your actual workspace name
-    }
-  }
-
   required_version = ">= 1.0.0"
   required_providers {
     openstack = {
@@ -26,4 +19,4 @@ terraform {
       version = "~> 1.48.0"
     }
   }
-}   
+}
