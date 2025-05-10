@@ -6,8 +6,8 @@ variable "region" {
   default = "KVM@TACC"
 }
 
-variable "application_credential_id" {}
-variable "application_credential_secret" {}
+variable "application_credential_id" {d37008c7f5b446c29e03c490790d0e9d}
+variable "application_credential_secret" {53Hr7TYYlywzzcXnOWBAKFB394V61zEVfXH_SAsXhThZGzyinuDkHHbM8-ypystvIOPIJdRK90DVfrvLLqsTeg}
 
 variable "keypair_name" {}
 variable "public_key_path" {}
