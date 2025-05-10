@@ -70,7 +70,7 @@ async def generate_video(request: VideoRequest):
                 tea_cache_l1_thresh=0.05,
                 tea_cache_model_id="Wan2.1-T2V-1.3B",
             )
-            save_video(video, video_path, fps=15, quality=5)
+            save_video(video, video_path, fps=30, quality=5)
             return VideoResponse(video_path=video_path)
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Video generation error: {str(e)}") 

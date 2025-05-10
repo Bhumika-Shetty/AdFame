@@ -15,6 +15,13 @@ services:
       - "8000:8000"
     volumes:
       - shared_videos:/app/saved_videos
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     # restart: unless-stopped
 
   # flask:

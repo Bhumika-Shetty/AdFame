@@ -32,3 +32,10 @@ inference_pipeline/Enpoint_Serving/models/
 inference_pipeline/Evaluation/models
 
 trainig_pipeline/myenv
+*.mp4
+*.mp3
+*.wav
+*.avi
+*.mkv
+*.mov
+*.flv
