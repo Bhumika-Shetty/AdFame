@@ -1,7 +1,5 @@
 version: '3.8'
 
-name: eval_online
-
 volumes:
   prometheus_data: {}
   grafana_data: {}
@@ -10,7 +8,7 @@ volumes:
 services:
   fastapi_server:
     build:
-      context: ./fastapi_service
+      context: ./Enpoint_Serving
       dockerfile: Dockerfile
     container_name: fastapi_server
     ports:
@@ -19,20 +17,20 @@ services:
       - shared_videos:/app/saved_videos
     # restart: unless-stopped
 
-  flask:
-    build:
-      context: ./flask_app # Our local Flask app directory
-      dockerfile: Dockerfile
-    container_name: flask_app # Using flask_app for consistency, user used 'flask'
-    ports:
-      - "5000:5000"
-    environment:
-      - FASTAPI_SERVER_URL=http://fastapi_server:8000
-    volumes:
-      - shared_videos:/app/static/saved_videos # Mount to a subfolder in static
-    depends_on:
-      - fastapi_server
-    # restart: unless-stopped
+  # flask:
+  #   build:
+  #     context: ./flask_app # Our local Flask app directory
+  #     dockerfile: Dockerfile
+  #   container_name: flask_app # Using flask_app for consistency, user used 'flask'
+  #   ports:
+  #     - "5000:5000"
+  #   environment:
+  #     - FASTAPI_SERVER_URL=http://fastapi_server:8000
+  #   volumes:
+  #     - shared_videos:/app/static/saved_videos # Mount to a subfolder in static
+  #   depends_on:
+  #     - fastapi_server
+  #   # restart: unless-stopped
 
   prometheus:
     image: prom/prometheus:latest
@@ -55,10 +53,5 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     # restart: unless-stopped
 
