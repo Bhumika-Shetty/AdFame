@@ -15,10 +15,10 @@ resource "openstack_networking_subnet_v2" "private_subnet" {
 }
 
 # Keypair
-resource "openstack_compute_keypair_v2" "keypair" {
-  name       = var.keypair_name
-  public_key = file(var.public_key_path)
-}
+#resource "openstack_compute_keypair_v2" "keypair" {
+ # name       = var.keypair_name
+  #public_key = file(var.public_key_path)
+#}
 
 # Dedicated port for controller
 resource "openstack_networking_port_v2" "controller_port" {
