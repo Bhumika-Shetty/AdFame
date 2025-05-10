@@ -24,20 +24,21 @@ services:
               capabilities: [gpu]
     # restart: unless-stopped
 
-  # flask:
-  #   build:
-  #     context: ./flask_app # Our local Flask app directory
-  #     dockerfile: Dockerfile
-  #   container_name: flask_app # Using flask_app for consistency, user used 'flask'
-  #   ports:
-  #     - "5000:5000"
-  #   environment:
-  #     - FASTAPI_SERVER_URL=http://fastapi_server:8000
-  #   volumes:
-  #     - shared_videos:/app/static/saved_videos # Mount to a subfolder in static
-  #   depends_on:
-  #     - fastapi_server
-  #   # restart: unless-stopped
+  flask:
+    build:
+      context: ./flask_app # Our local Flask app directory
+      dockerfile: Dockerfile
+    container_name: flask_app # Using flask_app for consistency, user used 'flask'
+    ports:
+      - "5000:5000"
+    environment:
+      - FASTAPI_SERVER_URL=http://fastapi_server:8000
+    volumes:
+      - shared_videos:/app/static/saved_videos # Mount to a subfolder in static
+    depends_on:
+      - fastapi_server
+    restart: unless-stopped
+
 
   prometheus:
     image: prom/prometheus:latest

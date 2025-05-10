@@ -3,27 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Generation</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Sports Ad Video Generator</title>
+    <link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}">
 </head>
 <body>
+    <header>
+        <h1>Sports Ad Video Generator</h1>
+    </header>
+
     <div class="container">
-        <h1>Video Generation Service</h1>
-        <form method="POST">
-            <label for="prompt">Enter your prompt:</label><br>
-            <textarea id="prompt" name="prompt" rows="4" cols="50"></textarea><br><br>
-            <input type="submit" value="Generate Video">
+        <form id="videoForm" method="POST">
+            <label for="prompt">Craft Your Winning Prompt:</label>
+            <textarea id="prompt" name="prompt" rows="5" placeholder="e.g., Epic basketball slam dunk, slow motion, fiery background"></textarea>
+            <input id="submitButton" type="submit" value="Generate Ad">
         </form>
 
+        <!-- Loader Element -->
+        <div id="loader" class="loader-container" style="display: none;">
+            <div class="spinner"></div>
+            <p class="loading-text">Generating your epic sports ad... Please wait!</p>
+        </div>
+
+        {% if error_message %}
+            <div class="error-message">
+                <p>{{ error_message }}</p>
+            </div>
+        {% endif %}
+
         {% if video_path %}
-            <h2>Generated Video:</h2>
-            <video width="640" height="360" controls>
-                <source src="{{ url_for('static', filename=video_path) }}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        {% elif error_message %}
-            <p style="color: red;">{{ error_message }}</p>
+            <div class="video-container">
+                <h2>Your Generated Ad:</h2>
+                <video controls>
+                    {# Assuming video_path is relative to the static/saved_videos directory, e.g., "my_video.mp4" #}
+                    {# Or if video_path is like "saved_videos/my_video.mp4" from API #}
+                    <source src="{{ url_for("static", filename=video_path) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
         {% endif %}
     </div>
+
+    <footer>
+        <p>&copy; 2025 Sports Ad Gen Inc. - Powering Your Brand</p>
+    </footer>
+
+    <script>
+        const videoForm = document.getElementById("videoForm");
+        const submitButton = document.getElementById("submitButton");
+        const loader = document.getElementById("loader");
+
+        videoForm.addEventListener("submit", function() {
+            loader.style.display = "flex";
+            submitButton.disabled = true;
+            submitButton.value = "Generating...";
+
+            // Hide video and error if they were previously shown
+            const videoContainer = document.querySelector(".video-container");
+            if (videoContainer) videoContainer.style.display = "none";
+            const errorMessage = document.querySelector(".error-message");
+            if (errorMessage) errorMessage.style.display = "none";
+        });
+
+        // Handle page restore from bfcache (e.g., browser back/forward)
+        window.addEventListener("pageshow", function(event) {
+            var historyTraversal = event.persisted || 
+                                 ( typeof window.performance != "undefined" && 
+                                       window.performance.navigation.type === 2 );
+            if ( historyTraversal ) {
+                loader.style.display = "none";
+                submitButton.disabled = false;
+                submitButton.value = "Generate Ad";
+            }
+        });
+    </script>
 </body>
 </html>
+
