@@ -2,21 +2,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: adfame-app
-  namespace: adfame-staging
-
+  name: gourmetgram-app
+  namespace: gourmetgram-production
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: adfame-app
+      app: gourmetgram-app
   template:
     metadata:
       labels:
-        app: adfame-app
+        app: gourmetgram-app
     spec:
       containers:
-        - name: adfame-app
+        - name: gourmetgram-app
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           ports:
             - containerPort: 8000
@@ -27,11 +26,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: adfame-app
-  namespace: adfame-staging
+  name: gourmetgram-app
+  namespace: gourmetgram-production
 spec:
   selector:
-    app: adfame-app
+    app: gourmetgram-app
   ports:
     - port: {{ .Values.service.port }}
       targetPort: 8000

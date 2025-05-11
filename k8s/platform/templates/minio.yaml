@@ -3,7 +3,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: minio-pvc
-  namespace: adfame-platform
+  namespace: gourmetgram-platform
 spec:
   accessModes:
     - ReadWriteOnce
@@ -15,7 +15,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: minio
-  namespace: adfame-platform
+  namespace: gourmetgram-platform
 spec:
   replicas: 1
   selector:
@@ -56,7 +56,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: minio
-  namespace: adfame-platform
+  namespace: gourmetgram-platform
 spec:
   selector:
     app: minio
@@ -68,13 +68,13 @@ spec:
       port: 9001
       targetPort: 9001
   externalIPs:
-    - { { .Values.minio.externalIP } }
+    - {{ .Values.minio.externalIP }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: minio-create-bucket
-  namespace: adfame-platform
+  namespace: gourmetgram-platform
   annotations:
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded

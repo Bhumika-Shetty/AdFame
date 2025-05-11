@@ -1,4 +1,5 @@
 apiVersion: v2
-name: adfame-production
+name: gourmetgram-production
 version: 1.0.0
-description: adfame Production Deployment
+description: Gourmetgram Production Deployment
+

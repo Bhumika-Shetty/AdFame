@@ -1,4 +1,5 @@
 apiVersion: v2
-name: adfame-staging
+name: gourmetgram-staging
 version: 1.0.0
-description: adfame Staging Deployment
+description: Gourmetgram Staging Deployment
+

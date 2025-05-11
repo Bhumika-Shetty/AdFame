@@ -1,12 +1,12 @@
 replicaCount: 1
 
 image:
-  repository: registry.kube-system.svc.cluster.local:5000/adfame-app
+  repository: registry.kube-system.svc.cluster.local:5000/gourmetgram-app
   tag: staging-1.0.0
 
 service:
   port: 8081
-  externalIP: "" # Placeholder
+  externalIP: ""   # Placeholder
 
 resources:
   limits:
@@ -15,3 +15,4 @@ resources:
   requests:
     cpu: "200m"
     memory: "128Mi"
+
