@@ -16,6 +16,7 @@ RUN git clone https://github.com/modelscope/DiffSynth-Studio.git \
     && pip install -e . \
     && cd /app
 
+
 # Download video models using modelscope
 # Ensure the models directory exists and is writable if models are large
 RUN mkdir -p models/Wan-AI/Wan2.1-T2V-1.3B
