@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'training_app'
+    static_configs:
+      - targets: ['training_app:8000'] # Assuming your app exposes metrics on port 8000
+  - job_name: 'ray'
+    static_configs:
+      - targets: ['ray_head:8265'] # Ray dashboard provides some metrics
