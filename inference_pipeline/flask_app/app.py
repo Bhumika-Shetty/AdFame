@@ -21,7 +21,7 @@ def generate_video_post():
         return render_template("index.html", video_path=None, error_message=error_message)
     
     try:
-        response = requests.post(f"{FASTAPI_URL}/generate", json={"prompt": prompt}, timeout=300) # Increased timeout for potentially long video generation
+        response = requests.post(f"{FASTAPI_URL}/generate", json={"prompt": prompt}, timeout=600) # Increased timeout for potentially long video generation
         response.raise_for_status()  # Raise an exception for HTTP errors
         data = response.json()
         video_path = data.get("video_path") # This should be like "saved_videos/my_video.mp4"
