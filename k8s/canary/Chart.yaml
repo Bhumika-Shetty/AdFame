@@ -1,4 +1,0 @@
-apiVersion: v2
-name: adfame-canary
-version: 1.0.0
-description: adfame Canary Deployment
