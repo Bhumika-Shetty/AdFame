@@ -1,4 +1,4 @@
-name: fashion-extraction
+name: online-data-store
 volumes:
   block-persist-project15:
 services:
