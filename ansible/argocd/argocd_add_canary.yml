@@ -1,9 +1,9 @@
 ---
-- name: Deploy AdFame Canary via ArgoCD & Helm
+- name: Deploy adfame Canary via ArgoCD & Helm
   hosts: node1
   become: yes
   vars:
-    app_name: AdFame-canary
+    app_name: adfame-canary
     repo_url: https://github.com/Bhumika-Shetty/AdFame.git
     app_path: k8s/canary
     argocd_namespace: argocd
@@ -30,8 +30,8 @@
       set_fact:
         external_ip: "{{ ansible_all_ipv4_addresses | select('match', '^10\\.56\\..*') | list | first }}"
 
-    - name: Create AdFame-canary namespace if missing
-      command: kubectl create namespace AdFame-canary
+    - name: Create adfame-canary namespace if missing
+      command: kubectl create namespace adfame-canary
       register: ns_create
       failed_when: ns_create.rc != 0 and "AlreadyExists" not in ns_create.stderr
       changed_when: "'created' in ns_create.stdout"

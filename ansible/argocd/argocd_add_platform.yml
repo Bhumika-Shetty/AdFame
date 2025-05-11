@@ -5,7 +5,7 @@
   vars:
     argocd_username: "admin"
     repo_path: "https://github.com/Bhumika-Shetty/AdFame.git"
-    app_name: "AdFame-platform"
+    app_name: "adfame-platform"
     app_path: "k8s/platform"
     minio_access_key: "your-access-key"
 
@@ -37,18 +37,18 @@
       set_fact:
         external_ip: "{{ ansible_all_ipv4_addresses | select('match', '^10\\.56\\..*') | list | first }}"
 
-    - name: Ensure AdFame-platform namespace exists
-      command: kubectl get namespace AdFame-platform
+    - name: Ensure adfame-platform namespace exists
+      command: kubectl get namespace adfame-platform
       register: ns_check
       failed_when: false
       changed_when: false
 
-    - name: Create AdFame-platform namespace if missing
+    - name: Create adfame-platform namespace if missing
       when: ns_check.rc != 0
-      command: kubectl create namespace AdFame-platform
+      command: kubectl create namespace adfame-platform
 
     - name: Check if MinIO secret already exists
-      command: kubectl get secret minio-credentials -n AdFame-platform
+      command: kubectl get secret minio-credentials -n adfame-platform
       register: minio_secret_check
       failed_when: false
       changed_when: false
@@ -62,7 +62,7 @@
       when: minio_secret_check.rc != 0
       command: >
         kubectl create secret generic minio-credentials
-        --namespace AdFame-platform
+        --namespace adfame-platform
         --from-literal=accesskey={{ minio_access_key }}
         --from-literal=secretkey={{ minio_secret_key }}
       register: minio_secret_create
@@ -70,7 +70,7 @@
     - name: Get existing MinIO secret key if already exists
       when: minio_secret_check.rc == 0
       command: >
-        kubectl get secret minio-credentials -n AdFame-platform -o jsonpath="{.data.secretkey}"
+        kubectl get secret minio-credentials -n adfame-platform -o jsonpath="{.data.secretkey}"
       register: existing_secret_b64
 
     - name: Decode existing MinIO secret key

@@ -1,9 +1,9 @@
 ---
-- name: Deploy AdFame Staging via ArgoCD & Helm
+- name: Deploy adfame Staging via ArgoCD & Helm
   hosts: node1
   become: yes
   vars:
-    app_name: AdFame-staging
+    app_name: adfame-staging
     repo_url: https://github.com/Bhumika-Shetty/AdFame.git
     app_path: k8s/staging
     argocd_namespace: argocd
@@ -30,8 +30,8 @@
       set_fact:
         external_ip: "{{ ansible_all_ipv4_addresses | select('match', '^10\\.56\\..*') | list | first }}"
 
-    - name: Create AdFame-staging namespace if missing
-      command: kubectl create namespace AdFame-staging
+    - name: Create adfame-staging namespace if missing
+      command: kubectl create namespace adfame-staging
       register: ns_create
       failed_when: ns_create.rc != 0 and "AlreadyExists" not in ns_create.stderr
       changed_when: "'created' in ns_create.stdout"
