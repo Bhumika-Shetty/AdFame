@@ -5,3 +5,7 @@
 [submodule "inference_pipeline/DiffSynth-Studio"]
 	path = inference_pipeline/DiffSynth-Studio
 	url = https://github.com/modelscope/DiffSynth-Studio.git
+[submodule "/ansible/k8s"]
+	path = ansible/k8s
+	url = https://github.com/kubernetes-sigs/kubespray.git
+	branch = 184b15f8aef4eba40c7433f509b0659b7b66fa44
