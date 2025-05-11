@@ -1,28 +1,20 @@
-variable "auth_url" {
-  default = "https://kvm.tacc.chameleoncloud.org:5000/v3"
+variable "suffix" {
+  description = "Suffix for resource names (use net ID)"
+  type        = string
+  nullable = false
 }
 
-variable "region" {
-  default = "KVM@TACC"
+variable "key" {
+  description = "Name of key pair"
+  type        = string
+  default     = "id_rsa_chameleon"
 }
 
-variable "application_credential_id" {
-  description = "OpenStack application credential ID"
-  default     = "d37008c7f5b446c29e03c490790d0e9d"
-}
-
-variable "application_credential_secret" {
-  description = "OpenStack application credential secret"
-  default     = "53Hr7TYYlywzzcXnOWBAKFB394V61zEVfXH_SAsXhThZGzyinuDkHHbM8-ypystvIOPIJdRK90DVfrvLLqsTeg"
-}
-
-
-variable "network_name" {
-  default = "private_net_project15"
-}
-variable "image_name" {
-  default = "CC-Ubuntu24.04"
-}
-variable "flavor_name" {
-  default = "m1.large"
+variable "nodes" {
+  type = map(string)
+  default = {
+    "node1" = "192.168.1.11"
+    "node2" = "192.168.1.12"
+    "node3" = "192.168.1.13"
+  }
 }
