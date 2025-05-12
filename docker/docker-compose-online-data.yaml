@@ -1,13 +1,162 @@
-name: online-data-store
+name: online-data-simulation
 volumes:
   block-persist-project15:
+
 services:
-  
+  simulate-online-data:
+    container_name: simulate_online_data
+    image: python:3.11
+    volumes:
+      - /mnt/object:/mnt/object
+    working_dir: /app
+    command:
+      - bash
+      - -c
+      - |
+        pip install requests
+        echo "Running inline simulation script..."
+        python - << 'EOF'
+import os
+import requests
+import shutil
+from pathlib import Path
+
+PROD_DIR = "/mnt/object/only_fashion_show_dataset/production"
+ARCHIVE_DIR = "/mnt/object/only_fashion_show_dataset/archived"
+# to be changed if endpoint is changed by model serving.
+ENDPOINT = "http://129.114.109.169:5000/generate_video"
+
+os.makedirs(ARCHIVE_DIR, exist_ok=True)
+
+def get_prompt_files(limit=20):
+    return sorted(Path(PROD_DIR).glob("*.txt"))[:limit]
+
+def send_prompt(prompt_text):
+    payload = {"prompt": prompt_text}
+    response = requests.post(ENDPOINT, json=payload)
+    if response.status_code == 200:
+        print("✅ Prompt processed.")
+    else:
+        print(f"❌ API call failed with status code {response.status_code}")
+
+def move_prompt_and_video(prompt_file):
+    base_name = prompt_file.stem  # e.g., 'a (1)'
+    video_file = prompt_file.with_suffix(".mp4")
+
+    # Move prompt
+    archive_prompt_path = os.path.join(ARCHIVE_DIR, prompt_file.name)
+    shutil.move(str(prompt_file), archive_prompt_path)
+    print(f"Moved prompt file to archive: {archive_prompt_path}")
+
+    # Move video if it exists
+    if video_file.exists():
+        archive_video_path = os.path.join(ARCHIVE_DIR, video_file.name)
+        shutil.move(str(video_file), archive_video_path)
+        print(f"Moved video file to archive: {archive_video_path}")
+    else:
+        print(f"Video file not found: {video_file.name}")
+
+def main():
+    prompt_files = get_prompt_files()  # limit can be changed here if required
+    for prompt_file in prompt_files:
+        with open(prompt_file, "r") as f:
+            prompt = f.read().strip()
+        send_prompt(prompt)
+        move_prompt_and_video(prompt_file)
+
+if __name__ == "__main__":
+    main()
+EOF
+
+  simulate-online-data-concurrent:
+    container_name: simulate_online_data_concurrent
+    image: python:3.11
+    volumes:
+      - /mnt/object:/mnt/object
+    working_dir: /app
+    command:
+      - bash
+      - -c
+      - |
+        pip install requests
+        echo "Running inline simulation script with varying concurrency..."
+        python - << 'EOF'
+import os
+import requests
+import shutil
+import time
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
+
+PROD_DIR = "/mnt/object/only_fashion_show_dataset/production"
+ARCHIVE_DIR = "/mnt/object/only_fashion_show_dataset/archived"
+ENDPOINT = "http://129.114.109.169:5000/generate_video"
+
+os.makedirs(ARCHIVE_DIR, exist_ok=True)
+
+LOAD_PATTERN = [1, 5, 3, 7, 10]
+DELAY_BETWEEN_STEPS = 60  # in seconds
+
+def get_prompt_files(limit):
+    return sorted(Path(PROD_DIR).glob("*.txt"))[:limit]
+
+def send_and_archive(prompt_file):
+    base_name = prompt_file.stem
+    video_file = prompt_file.with_suffix(".mp4")
+
+    with open(prompt_file, "r") as f:
+        prompt_text = f.read().strip()
+
+    payload = {"prompt": prompt_text}
+    try:
+        response = requests.post(ENDPOINT, json=payload, timeout=300)
+        if response.status_code == 200:
+            print(f"✅ Prompt '{prompt_file.name}' processed.")
+        else:
+            print(f"❌ Failed for '{prompt_file.name}', status code: {response.status_code}")
+    except Exception as e:
+        print(f"❌ Error sending '{prompt_file.name}': {e}")
+
+    # Move prompt
+    archive_prompt_path = os.path.join(ARCHIVE_DIR, prompt_file.name)
+    shutil.move(str(prompt_file), archive_prompt_path)
+    print(f"Moved prompt to archive: {archive_prompt_path}")
+
+    # Move video if exists
+    if video_file.exists():
+        archive_video_path = os.path.join(ARCHIVE_DIR, video_file.name)
+        shutil.move(str(video_file), archive_video_path)
+        print(f"Moved video to archive: {archive_video_path}")
+    else:
+        print(f"Video file not found: {video_file.name}")
+
+def main():
+    all_prompt_files = sorted(Path(PROD_DIR).glob("*.txt"))
+    current_index = 0
+
+    for concurrency in LOAD_PATTERN:
+        print(f"Running load stage with {concurrency} concurrent requests...")
+        prompt_batch = all_prompt_files[current_index:current_index + concurrency]
+        if not prompt_batch:
+            print("✅ No more prompts to process.")
+            break
+
+        with ThreadPoolExecutor(max_workers=concurrency) as executor:
+            executor.map(send_and_archive, prompt_batch)
+
+        current_index += concurrency
+        print(f"Waiting {DELAY_BETWEEN_STEPS} seconds before next load stage...")
+        time.sleep(DELAY_BETWEEN_STEPS)
+
+if __name__ == "__main__":
+    main()
+EOF
+
   load-data:
     container_name: etl_load_data
     image: rclone/rclone:latest
     volumes:
-      - mnt/block/saved_videos:mnt/openvid/inference_videos
+      - /mnt/block/saved_videos:/mnt/openvid/inference_videos
       - ~/.config/rclone/rclone.conf:/root/.config/rclone/rclone.conf:ro
     entrypoint: /bin/sh
     command:
@@ -17,12 +166,12 @@ services:
           echo "ERROR: RCLONE_CONTAINER is not set"
           exit 1
         fi
-	rclone copy mnt/openvid/inference_videos chi_tacc:$RCLONE_CONTAINER \
-        --progress \
-        --transfers=32 \
-        --checkers=16 \
-        --multi-thread-streams=4 \
-        --fast-list
+        rclone copy /mnt/openvid/inference_videos chi_tacc:$RCLONE_CONTAINER \
+          --progress \
+          --transfers=32 \
+          --checkers=16 \
+          --multi-thread-streams=4 \
+          --fast-list
 
         echo "Listing directories in container after load stage:"
         rclone lsd chi_tacc:$RCLONE_CONTAINER
