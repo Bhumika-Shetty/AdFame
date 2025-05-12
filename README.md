@@ -548,7 +548,7 @@ Provision via:
 ```bash
 docker compose -f docker-compose-training-data.yaml up --build -d
 
----
+```
 
 ## 🗃️ Unit 8: Data Person
 
