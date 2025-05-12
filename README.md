@@ -548,3 +548,117 @@ Provision via:
 ```bash
 docker compose -f docker-compose-training-data.yaml up --build -d
 
+---
+
+## 🗃️ Unit 8: Data Person
+
+### 1. 📦 Persistent Storage
+
+We use two forms of persistent storage on Chameleon Cloud:
+
+#### 🪣 Object Store: `AdFame-project-group15`
+
+- **Contents**:
+  - Train, Evaluation, Production datasets
+  - Inference results: videos and prompts
+- **Size**: ~20 GB
+- **Used By**: Model training pipeline and inference server
+
+#### 💽 Block Storage: `block-persist-project15`
+
+- **Attached to**: VM instance
+- **Size**: ≥200 GB
+- **Used For**:
+  - Downloading raw zip files (159 zip files ~40GB each)
+  - Extracting video/prompt samples
+  - Temporary staging for metadata, mapping files, and filtered outputs
+- **Notes**:
+  - Zip files are deleted after video extraction to save space
+
+📖 **Instructions**: [Data Pipeline Setup Guide](https://github.com/Bhumika-Shetty/AdFame/tree/main/Data%20pipeline%20notebooks)
+
+---
+
+### 2. 🧾 Offline Data
+
+#### 📚 Dataset: [OpenVid-1M](https://huggingface.co/datasets/nkp37/OpenVid-1M)
+
+**Source**:
+- Aggregates video-text pairs from online repositories, human-labeled datasets, and prior generative systems.
+
+**Each Sample Includes**:
+- A **text prompt** (e.g., "A woman jogging in Adidas sportswear")
+- A **short video clip** (real/synthetic)
+- **Metadata**: tags, duration, resolution (optional)
+
+**Data Lineage**:
+- Prompt + video pairs from OpenVid-1M
+- Curated by filtering fashion-specific contexts (e.g., "Nike shoes", "basketball court", "urban streetwear")
+
+**Example Sample**:
+
+| Field       | Value                                            |
+|-------------|--------------------------------------------------|
+| Prompt      | "A teenager skateboarding in Nike sneakers"      |
+| Video       | `/zip_archive/video_08732.mp4`                   |
+| Tags        | `nike, skateboarding, urban, sportswear`         |
+| Duration    | 5.2 seconds                                      |
+| Resolution  | 480x640                                          |
+
+This sample relates to **Nike's marketing needs**: youth appeal, athletic motion, and brand visibility.
+
+**Production Sample Lifecycle**:
+- Same format as training
+- Prompts arrive from live user input or batch curation
+- Videos generated
+- Optionally rated and reused as feedback for retraining (active learning)
+
+Mapping Reference:  
+- [OpenVid-1M-mapping](https://huggingface.co/datasets/phil329/OpenVid-1M-mapping)
+
+---
+
+### 3. 🔄 Data Pipeline
+
+📁 YAML Config: [`docker-compose-training-data.yaml`](https://github.com/Bhumika-Shetty/AdFame/blob/main/docker/docker-compose-training-data.yaml)
+
+#### 🛠 Services Overview
+
+**`extract-fashion-videos`**:
+1. Download metadata + mappings and create a unified dataframe.
+2. Filter prompts by:
+   - Brand keywords (`nike`, `adidas`, etc.)
+   - Minimum video duration
+   - Quality scores
+3. Map prompts to zip file locations
+4. Download only required zip files using **3 threads**
+5. Extract relevant videos + prompts
+6. Store outputs in **block storage** and delete zip files
+
+**`split-fashion-data`**:
+- Split into:
+  - **Train**: 70%
+  - **Evaluation**: 15%
+  - **Production**: 15%
+- Prevents overlap and leakage between evaluation and training sets
+
+**`load-data`**:
+- Upload split datasets from block storage into the **MinIO object store**
+
+---
+
+### 4. 📊 (Optional) Data Dashboard
+
+> *Planned feature*
+
+A future dashboard could visualize:
+- Category distribution (e.g., sportswear vs casual)
+- Tag frequency heatmaps
+- Zip archive coverage
+- Quality filtering thresholds
+
+**Customer Benefit**:  
+Helps Nike/Adidas teams monitor dataset scope, refine prompt strategy, and evaluate curation coverage (e.g., "Do we have enough videos for basketball scenes?" or "Which styles are underrepresented?").
+
+---
+
