@@ -71,7 +71,7 @@ RUN pip install gdown
 RUN pip install tensorboard
 RUN pip install accelerate
 # ADDED: Install Ray, MLflow, and Prometheus client
-RUN pip install ray[default]
+RUN pip install "ray[default]==2.42.1"
 RUN pip install mlflow
 RUN pip install prometheus_client
 RUN pip install modelscope

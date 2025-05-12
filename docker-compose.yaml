@@ -1,30 +1,179 @@
-version: '3.8'
+name: mlops_stack
+version: "3.8"
 
 services:
+  # Shared MinIO service for artifacts and checkpoints
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    expose:
+      - "9000"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: "your-access-key"
+      MINIO_ROOT_PASSWORD: "your-secret-key"
+    healthcheck:
+      test: timeout 5s bash -c ':> /dev/tcp/127.0.0.1/9000' || exit 1
+      interval: 1s
+      timeout: 10s
+      retries: 5
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+  minio-create-buckets:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set minio http://minio:9000 your-access-key your-secret-key &&
+      mc mb minio/mlflow-artifacts || true &&
+      mc mb minio/ray || true &&
+      echo 'Buckets checked/created'
+      "
+
+  # PostgreSQL backend for MLflow
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mlflowdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # MLflow server
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.20.2
+    container_name: mlflow
+    restart: always
+    depends_on:
+      - minio
+      - postgres
+      - minio-create-buckets
+    environment:
+      MLFLOW_TRACKING_URI: http://0.0.0.0:8000
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      AWS_ACCESS_KEY_ID: "your-access-key"
+      AWS_SECRET_ACCESS_KEY: "your-secret-key"
+    ports:
+      - "8000:8000"
+    command: >
+      /bin/sh -c "pip install psycopg2-binary boto3 &&
+      mlflow server --backend-store-uri postgresql://user:password@postgres/mlflowdb 
+      --artifacts-destination s3://mlflow-artifacts/ --serve-artifacts --host 0.0.0.0 --port 8000"
+
+  # Ray head node
+  ray-head:
+    image: rayproject/ray:2.42.1
+    container_name: ray-head
+    command: >
+      /bin/sh -c "
+      mkdir -p /tmp/ray && 
+      chown -R root:root /tmp/ray &&
+      ray metrics launch-prometheus &&
+      ray start --head --port=6379 --dashboard-host=0.0.0.0 --block --metrics-export-port=8080"
+    ports:
+      - "6379:6379"
+      - "8265:8265"
+      - "8080:8080"
+      - "8090:8090"
+      - "9090:9090"
+    shm_size: '12g'
+    volumes:
+      - ray_tmp:/tmp/ray
+    environment:
+      - RAY_GRAFANA_HOST=http://grafana:3000
+      - RAY_GRAFANA_IFRAME_HOST=http://localhost:3000
+      - RAY_PROMETHEUS_HOST=http://ray-head:9090
+      - RAY_PROMETHEUS_NAME=Prometheus
+      - AWS_ACCESS_KEY_ID=your-access-key
+      - AWS_SECRET_ACCESS_KEY=your-secret-key
+      - AWS_ENDPOINT_URL=http://minio:9000
+    user: root
+
+  # Single Ray worker (for your 1 GPU)
+  ray-worker:
+    image: rayproject/ray:2.42.1-gpu
+    container_name: ray-worker
+    command: ["ray", "start", "--address=ray-head:6379", "--num-cpus=8", "--num-gpus=1", "--block"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: "nvidia"
+              capabilities: ["gpu"]
+              device_ids: ["0"]
+    shm_size: '12g'
+    volumes:
+      - /mnt:/mnt
+    environment:
+      - AWS_ACCESS_KEY_ID=your-access-key
+      - AWS_SECRET_ACCESS_KEY=your-secret-key
+      - AWS_ENDPOINT_URL=http://minio:9000
+    depends_on:
+      - ray-head
+
+  # Grafana dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    entrypoint: >
+      /bin/sh -c "
+      while [ ! -f /tmp/ray/session_latest/metrics/grafana/grafana.ini ]; do
+        echo 'Waiting for Grafana config files...'
+        sleep 2
+      done &&
+      /run.sh --config /tmp/ray/session_latest/metrics/grafana/grafana.ini"
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_storage:/var/lib/grafana
+      - ray_tmp:/tmp/ray:ro
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      - GF_PATHS_PROVISIONING=/tmp/ray/session_latest/metrics/grafana/provisioning
+      - GF_SERVER_HTTP_ADDR=0.0.0.0
+      - GF_DATABASE_TYPE=sqlite3
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_PROXY_ENABLED=true
+      - GF_AUTH_PROXY_AUTO_SIGN_UP=true
+    depends_on:
+      - ray-head
+
+  # Your main training app
   training_app:
     build:
-      context: . # Assumes Dockerfile is in /home/cc/bhumi/AdFame/
+      context: .
       dockerfile: Dockerfile
     container_name: training_app_container
-    # Changed command to keep container running without executing script
     command: ["tail", "-f", "/dev/null"]
-    # Changed working_dir to the correct location of schedule_ray.py
-    working_dir: /app/AdFame/trainig_pipeline/diffusion-pipe 
+    working_dir: /app/AdFame/trainig_pipeline/diffusion-pipe
     environment:
-      - MLFLOW_TRACKING_URI=http://mlflow_server:5000 
-      - RAY_ADDRESS=ray://ray_head:10001
+      - MLFLOW_TRACKING_URI=http://mlflow:8000
+      - RAY_ADDRESS=ray://ray-head:10001
       - NVIDIA_VISIBLE_DEVICES=all
       - NCCL_P2P_DISABLE=1
       - NCCL_IB_DISABLE=1
     volumes:
       - ./trainig_pipeline:/app/AdFame/trainig_pipeline
-      - /home/cc/bhumi/AdFame/trainig_pipeline/diffusion-pipe/mlruns:/app/AdFame/trainig_pipeline/diffusion-pipe/mlruns
-      - /mnt/data/train:/app/AdFame/trainig_pipeline/diffusion-pipe/data/input
+      - /home/cc/AdFame/trainig_pipeline/diffusion-pipe/input:/app/AdFame/trainig_pipeline/diffusion-pipe/data/input
       - /home/cc/bhumi/AdFame/trainig_pipeline/diffusion-pipe/data/output:/app/AdFame/trainig_pipeline/diffusion-pipe/data/output
-      # - /home/cc/bhumi/AdFame/trainig_pipeline/diffusion-pipe/models/Wan2.1-T2V-14B:/home/cc/bhumi/AdFame/trainig_pipeline/diffusion-pipe/models/Wan2.1-T2V-14B
     depends_on:
-      - mlflow_server
-      - ray_head
+      - mlflow
+      - ray-head
     shm_size: '16gb'
     deploy:
       resources:
@@ -33,91 +182,9 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-    networks:
-      - app_network
-
-  mlflow_server:
-    image: ghcr.io/mlflow/mlflow:latest
-    container_name: mlflow_server_container
-    restart: always
-    ports:
-      - "5000:5000"
-    volumes:
-      - /home/cc/bhumi/AdFame/trainig_pipeline/diffusion-pipe/mlruns:/app/AdFame/trainig_pipeline/diffusion-pipe/mlruns
-    command: >
-      mlflow server
-      --host 0.0.0.0
-      --port 5000
-      --backend-store-uri sqlite:////mlflow_host_data/mlflow.db 
-      --default-artifact-root file:///mlflow_host_data
-    networks:
-      - app_network
-
-  ray_head:
-    image: rayproject/ray-ml:latest-py38-gpu
-    container_name: ray_head_container
-    restart: always
-    ports:
-      - "10001:10001"
-      - "8265:8265"
-      - "6379:6379"
-    environment:
-      - RAY_HEAD_SERVICE_HOST=ray_head
-      - NVIDIA_VISIBLE_DEVICES=all
-    command: /bin/bash -c "chmod -R 777 /tmp/ray && ray start --head --port=6379 --ray-client-server-port=10001 --dashboard-host=0.0.0.0 --num-cpus=4 --num-gpus=1"
-    shm_size: '8gb'
-    volumes:
-      - ray_head_logs:/tmp/ray
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-    networks:
-      - app_network
-    user: root
-
-  prometheus_server:
-    image: prom/prometheus:latest
-    container_name: prometheus_server_container
-    restart: always
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus
-    networks:
-      - app_network
-
-  grafana_server:
-    image: grafana/grafana:latest
-    container_name: grafana_server_container
-    restart: always
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_DATASOURCES_DEFAULT_NAME=Prometheus
-      - GF_DATASOURCES_DEFAULT_TYPE=prometheus
-      - GF_DATASOURCES_DEFAULT_URL=http://prometheus_server:9090
-      - GF_DATASOURCES_DEFAULT_ACCESS=proxy
-      - GF_DATASOURCES_DEFAULT_IS_DEFAULT=true
-    depends_on:
-      - prometheus_server
-    networks:
-      - app_network
 
 volumes:
-  prometheus_data:
-  grafana_data:
-  ray_head_logs:
-
-networks:
-  app_network:
-    driver: bridge
+  minio_data:
+  postgres_data:
+  ray_tmp:
+  grafana_storage:
