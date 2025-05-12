@@ -662,3 +662,102 @@ Helps Nike/Adidas teams monitor dataset scope, refine prompt strategy, and evalu
 
 ---
 
+
+Here is the markdown version of the provided text:
+
+---
+
+# Continuous X: Cloud-Native CI/CD and Continuous Training for Video Generation and AB Testing
+
+## Objective
+
+Design a cloud-native CI/CD pipeline with staged deployment, infrastructure-as-code (IaC), and automated continuous training to support the video generation and AB testing system.
+
+---
+
+### 1. Infrastructure-as-Code (IaC) & Cloud-Native Design
+
+**Tools:**
+
+* **Terraform:** Declaratively define Chameleon infrastructure (VMs, networks, storage) in Git.
+
+  * *Implementation:* Made the Terraform files and shell scripts to mount data, but they did not work. As a result, set up a VM on Jupyter Notebook.
+  * *Reference:* `terraform/kvm` folder and `1-create-server-data-pipeline.ipynb` notebook in "Resource Setup".
+
+* **Ansible:** Automate software installation (Docker, Ray, MLFlow) and configuration on provisioned VMs.
+
+  * *Implementation:* Set up Ansible.
+  * *Reference:* `Ansible` folder.
+
+* **ArgoCD/Helm:** Manage Kubernetes deployments for microservices (LLM, video generation, resolution adjustment).
+
+  * *Implementation:* ArgoCD setup is present in the `argocd` subfolder within the `Ansible` folder.
+
+---
+
+### 2. CI/CD Pipeline Design
+
+**Trigger:** Code push to the main branch or manual trigger.
+
+#### Stages:
+
+1. **Build & Test:**
+
+   * Containerize each script using Docker.
+
+2. **Continuous Training:**
+
+   * **Ray Cluster Integration:** Submit model retraining jobs (e.g., finetuned attention model) to Ray via Argo Workflows.
+   * **Experiment Tracking:** Log metrics to MLFlow.
+
+3. **Staging Deployment:**
+
+   * Deploy to staging using ArgoCD.
+   * Mirror production but with fewer replicas.
+   * Trigger canary deployment when staging tests pass and so on for production.
+
+4. **Canary Deployment:**
+
+   * Monitor canary deployment.
+   * If successful, promote to production.
+
+5. **Production Deployment:**
+
+   * Full rollout after canary success.
+   * Use Kubernetes autoscaling for high traffic.
+
+---
+
+### 3. Staged Environments (Intended but could not implement fully)
+
+For "Canary", "Staging", and "Production" environments, see the attached screenshot showing the Argo dashboard:
+
+* *File:* `Argo Dashboard for different env` (image file).
+
+#### Environment Breakdown:
+
+* **Testing:** Unit and integration tests with simulated loads.
+* **Staging:** Low-resource setup for integration testing and canary testing.
+* **Canary:** Partial rollout to detect regressions and anomalies.
+* **Production:** Scalable deployment with GPU nodes and full workload capacity.
+
+---
+
+### 4. Continuous Training Integration
+
+**Triggers:**
+
+* Scheduled retraining based on model performance.
+
+  * *Status:* Intended but could not complete the feedback loop.
+
+**Data Pipeline:**
+
+* Unit 8’s ETL processes ingest new user feedback and production data for retraining.
+
+  * *Reference:* `docker-compose-online-data.yaml`
+
+---
+
+Let me know if you need any modifications or additional sections!
+
