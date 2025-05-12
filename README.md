@@ -506,3 +506,45 @@ Scheduled retraining based on model performance.(Intended but could not finish f
 Data Pipeline:
 
 Unit 8’s ETL processes ingest new user feedback and production data for retraining. (Ref: docker-compose-online-data.yaml)
+
+
+# 🎥 AdFame Project Presentation (MLOps Final)
+
+## ✅ Unit 1: Value Proposition & Scale
+
+### 🎯 Value Proposition
+**Customer:**  
+A *creative marketing lead at Nike or Adidas* who wants to generate high-quality branded video ads rapidly, without relying on expensive production cycles.
+
+**Value Proposition:**  
+We deliver a system that can take natural language prompts (e.g., “A woman running in Nike shoes on a beach”) and generate short, visually engaging, brand-aligned video ads. This helps marketers iterate quickly on creative concepts.
+
+**Design Influences:**  
+- **Data**: Large-scale curated fashion-specific video-text dataset
+- **Deployment**: Cloud-native, GPU-backed inference endpoints
+- **Evaluation**: Business-aligned metrics (e.g., visual fidelity, brand tone), offline loss, and latency
+
+### 📈 Scale
+- **Data Size**: 20 GB (object store) + 200 GB (block storage during processing)
+- **Model**: Wan 2.1 (14B parameters), fine-tuned using LoRA
+- **Training Time**: 5 epochs ~ 45 minutes (A100 GPU)
+- **Inference Load**: ~500 requests/day (~20/hour)
+
+---
+
+## ☁️ Unit 2/3: Continuous X (Infra + CI/CD)
+
+### 🖼️ Cloud-Native Architecture
+> *(Updated system diagram here)*
+
+- Training: Ray, MLflow, Docker Compose
+- Serving: FastAPI + Uvicorn + TorchScript
+- Data: MinIO (object store) + Block Storage (video extraction)
+- CI/CD: GitHub Actions + Docker Registry
+
+### 🛠️ Infrastructure as Code
+Repo: [`/docker`](https://github.com/Bhumika-Shetty/AdFame/tree/main/docker)  
+Provision via:
+```bash
+docker compose -f docker-compose-training-data.yaml up --build -d
+
