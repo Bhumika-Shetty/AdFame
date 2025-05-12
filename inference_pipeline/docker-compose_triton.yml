@@ -1,0 +1,83 @@
+version: '3.8'
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
+  shared_videos_volume: {}
+
+services:
+  triton_server:
+    container_name: triton_server
+    build:
+      context: ./triton_server
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"  # HTTP service for Triton
+      - "8001:8001"  # gRPC service for Triton
+      - "8002:8002"  # Metrics service for Triton
+    volumes:
+      - shared_videos_volume:/shared_videos # Triton's model.py will write here
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 2 # Explicitly request 2 GPUs
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  fastapi_client: # This is our FastAPI app that talks to Triton
+    container_name: fastapi_client
+    build:
+      context: ./fastapi_service # Using the existing FastAPI client service
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8000" # Exposing this FastAPI client on host port 8080
+    environment:
+      - TRITON_SERVER_URL=http://triton_server:8000
+      # Add any other necessary environment variables for the FastAPI client
+    volumes:
+      - shared_videos_volume:/shared_videos # For FastAPI client to access/list videos if needed
+    depends_on:
+      - triton_server
+    restart: unless-stopped
+
+  flask_app:
+    build:
+      context: ./flask_app 
+      dockerfile: Dockerfile
+    container_name: flask_app
+    ports:
+      - "5000:5000"
+    environment:
+      - FASTAPI_SERVER_URL=http://fastapi_client:8000 # Flask talks to our fastapi_client on its internal port 8000
+    volumes:
+      - shared_videos_volume:/app/static/saved_videos # Mount to a subfolder in static for serving videos
+    depends_on:
+      - fastapi_client
+      - triton_server # Implicitly, as fastapi_client depends on it, but good to be explicit if flask might directly check triton status or videos
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command: ['--config.file=/etc/prometheus/prometheus.yml']
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    restart: unless-stopped
+

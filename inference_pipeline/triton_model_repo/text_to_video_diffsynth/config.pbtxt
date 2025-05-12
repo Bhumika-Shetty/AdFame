@@ -1,0 +1,52 @@
+name: "text_to_video_diffsynth"
+backend: "python"
+max_batch_size: 1 # Text-to-video generation is complex, start with batch size 1
+
+input [
+  {
+    name: "PROMPT"
+    data_type: TYPE_STRING
+    dims: [ -1 ] # Variable length string for prompt
+  },
+  {
+    name: "NEGATIVE_PROMPT"
+    data_type: TYPE_STRING
+    dims: [ -1 ] # Variable length string for negative prompt
+    optional: true
+  },
+  {
+    name: "NUM_INFERENCE_STEPS"
+    data_type: TYPE_INT32
+    dims: [ 1 ]
+    optional: true
+  },
+  {
+    name: "SEED"
+    data_type: TYPE_INT32
+    dims: [ 1 ]
+    optional: true
+  }
+]
+
+output [
+  {
+    name: "GENERATED_VIDEO_PATH"
+    data_type: TYPE_STRING
+    dims: [ -1 ] # Variable length string for the path
+  }
+]
+
+instance_group [
+  {
+    count: 1
+    kind: KIND_GPU
+    gpus: [ 0 ] # Assuming one GPU, device ID 0
+  }
+]
+
+# Optional: Dynamic batching (can be added later if beneficial)
+# dynamic_batching {
+#   preferred_batch_size: [ 1 ]
+#   max_queue_delay_microseconds: 100
+# }
+

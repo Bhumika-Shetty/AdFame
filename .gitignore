@@ -38,3 +38,5 @@ trainig_pipeline/myenv
 *.mkv
 *.mov
 *.flv
+
+inference_pipeline/triton_server/lora_files/safe_tensors
