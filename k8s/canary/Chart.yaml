@@ -1,5 +1,4 @@
 apiVersion: v2
-name: gourmetgram-canary
+name: adfame-canary
 version: 1.0.0
-description: Gourmetgram Canary Deployment
-
+description: adfame Canary Deployment
