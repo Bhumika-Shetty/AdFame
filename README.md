@@ -439,83 +439,70 @@ This data pipeline supports a prompt-to-video model, handling data ingestion, pr
 <!-- Make sure to clarify how you will satisfy the Unit 3 requirements,  and which 
 optional "difficulty" points you are attempting. -->
 
-**Objective:** Design a cloud-native CI/CD pipeline with staged deployment, infrastructure-as-code (IaC), and automated continuous training to support the video generation and AB testing system.
+Continuous X: Cloud-Native CI/CD and Continuous Training for Video Generation and AB Testing
 
----
+Objective
 
-#### **1. Infrastructure-as-Code (IaC) & Cloud-Native Design**
+Design a cloud-native CI/CD pipeline with staged deployment, infrastructure-as-code (IaC), and automated continuous training to support the video generation and AB testing system.
 
-- **Tools:**
-  - **Terraform**: Declaratively define Chameleon infrastructure (VMs, networks, storage) in Git.
-  - **Ansible**: Automate software installation (Docker, Ray, MLFlow) and configuration on provisioned VMs.
-  - **ArgoCD/Helm**: Manage Kubernetes deployments for microservices (LLM, video generation, resolution adjustment).
-- **Immutable Infrastructure**:
-  - All microservices and User Interface (frontend, LLM, video model, etc.) are containerized using Docker.
-  - Updates require rebuilding containers and redeploying via Git-triggered pipelines.
+1. Infrastructure-as-Code (IaC) & Cloud-Native Design
 
----
+Tools:
 
-#### **2. CI/CD Pipeline Design**
+Terraform: Declaratively define Chameleon infrastructure (VMs, networks, storage) in Git. (made the Terraform Files and shell scripts to mount data but that did not work so you setup a VM on Jupyter Notebook. Reference: "terraform/kvm" folder and "1-create-server-data-pipeline.ipynb" notebook in "Resource Setup".)
 
-**Trigger:** Code push to `main` branch or manual trigger.  
-**Stages:**
+Ansible: Automate software installation (Docker, Ray, MLFlow) and configuration on provisioned VMs. (You setup Ansible with refrence to "Ansible" folder.)
 
-1. **Build & Test**:
-   - Containerize each microservice using Docker.
-   - Run unit tests for frontend, LLM prompt generation, and video model inference.
-2. **Continuous Training**:
-   - **Ray Cluster Integration**: Submit model retraining jobs (e.g., finetuned attention model) to Ray via Argo Workflows.
-   - **Experiment Tracking**: Log metrics (e.g., AB test results) to MLFlow hosted on Chameleon.
-3. **Offline Evaluation**:
-   - Validate model performance on fairness, failure modes, and brand-specific scenarios.
-   - Only register models in MLFlow if evaluation passes thresholds.
-4. **Staging Deployment**:
-   - Deploy to staging using ArgoCD. Mirror production but with fewer replicas.
-5. **Load Testing**:
-   - Simulate concurrent user requests (e.g., 5 parallel video inferences) using Locust.
-6. **Canary Deployment**:
-   - Promote to canary if staging tests pass.
-7. **Production Deployment**:
-   - Full rollout after canary success. Use Kubernetes autoscaling for high traffic.
+ArgoCD/Helm: Manage Kubernetes deployments for microservices (LLM, video generation, resolution adjustment). ("ArgoCD" setup present in "argocd" subfolder in "Ansible" folder.)
 
----
+2. CI/CD Pipeline Design
 
-#### **3. Staged Environments**
+Trigger: Code push to the main branch or manual trigger.
 
-- **Staging**: Low-resource setup for integration testing.
-- **Canary**: Partial rollout to detect regressions.
-- **Production**: Scalable deployment with GPU nodes.
+Stages:
 
----
+Build & Test:
 
-#### **4. Continuous Training Integration**
+Containerize each scripts using Docker.
 
-- **Triggers**:
-  - Scheduled retraining (e.g., weekly).
-  - User feedback from AB tests (stored in DB via Microservice 4).
-- **Data Pipeline**:
-  - Unit 8’s ETL processes ingest new user feedback and production data for retraining.
-- **Optimizations**:
-  - **Ray Train**: Distributed training for large video models (achieves "difficulty points").
-  - **Ray Tune**: Hyperparameter tuning for prompt generation (LLM) and video quality.
+Continuous Training:
 
----
+Ray Cluster Integration: Submit model retraining jobs (e.g., finetuned attention model) to Ray via Argo Workflows.
 
-#### **5. Difficulty Points Attempted**
+Experiment Tracking: Log metrics to MLFlow.
 
-1. **Distributed Training**: Use Ray Train to parallelize video model training across GPUs.
-2. **Multiple Serving Options**: Compare GPU (high-performance) vs. CPU (cost-effective) inference for video generation.
-3. **Advanced Monitoring**:
-   - **Model Degradation**: Alert on AB test performance drops and trigger retraining.
+Staging Deployment:
 
----
+Deploy to staging using ArgoCD. Mirror production but with fewer replicas.
 
-#### **6. Validation**
+Trigger canary deploy when staging tests pass and so on for Prod.
 
-- **GitHub Repo**: All IaC, Ansible playbooks, and Argo Workflows in version control.
-- **Immutable Artifacts**: Docker images stored in Chameleon’s private registry.
-- **Documentation**: Pipeline flowchart and failure recovery plan (e.g., rollback via Argo Rollouts).
+Canary Deployment:
 
+Monitor canary deployment. If successful, promote to production.
 
+Production Deployment:
 
+Full rollout after canary success. Use Kubernetes autoscaling for high traffic.
 
+3. Staged Environments(Intended but could not implement fully)
+
+For "Canary", "Staging" and "Production" environment you will attach a screenshot showing Argo dashboard i.e "Argo Dashboard for different env" image file.
+
+Testing: Unit and integration tests with simulated loads.
+
+Staging: Low-resource setup for integration testing and canary testing.
+
+Canary: Partial rollout to detect regressions and anomalies.
+
+Production: Scalable deployment with GPU nodes and full workload capacity.
+
+4. Continuous Training Integration
+
+Triggers:
+
+Scheduled retraining based on model performance.(Intended but could not finish feedback loop)
+
+Data Pipeline:
+
+Unit 8’s ETL processes ingest new user feedback and production data for retraining. (Ref: docker-compose-online-data.yaml)
