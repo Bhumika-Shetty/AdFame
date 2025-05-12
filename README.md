@@ -755,6 +755,203 @@ For "Canary", "Staging", and "Production" environments, see the attached screens
 
 * Unit 8’s ETL processes ingest new user feedback and production data for retraining.
 
+# 🧠 AdFame: Branded Video Generation for Fashion Marketing
+
+This project enables text-to-video generation tailored for brand marketing (e.g., Nike, Adidas) using fine-tuned diffusion models. The system supports prompt-driven video generation, model training, evaluation, and cloud-native deployment using Ray, MLflow, Prometheus, and Triton.
+
+---
+
+## 🚀 Model Training & Experimentation
+
+### 🎯 Problem Setup
+
+We treat branded video generation as a **conditional generative modeling** problem using **diffusion-based text-to-video models**.
+
+- **Input**: Natural language prompt (e.g., *"A woman running in Nike shoes."*)
+- **Output**: Short video (3–6 seconds), aligned to brand tone and identity.
+
+### ⚙️ Model Details
+
+- **Model**: Wan 2.1 (14B parameters)
+- **Precision**: torch.bfloat16
+- **LoRA Rank**: 32
+- **Optimizer**: AdamW with linear scheduler
+- **Training Strategy**:
+  - LoRA Fine-tuning
+  - Mixed Precision (bf16)
+  - Gradient Accumulation (steps=4)
+  - Layer Freezing
+  - Deepspeed (memory optimization & pipeline parallelism)
+
+---
+
+## 📊 Experiment Tracking & Results (MLflow)
+
+### 📍 Location
+- MLflow UI: `http://localhost:8000`
+- All metrics in Postgres
+- Artifacts (models/videos) in MinIO (S3-compatible)
+
+### 🧪 Comparison Example: Victorious Chimp vs. Merciful Sow
+
+| Metric                     | Victorious Chimp | Merciful Sow |
+|---------------------------|------------------|---------------|
+| CPU Usage (%)             | 2.5              | 2.6           |
+| RAM Used (MB)             | 35,467.85        | 35,000.04     |
+| GPU Used (MB)             | 13,431           | 8,983         |
+| GPU Memory Allocated (MB) | 3,652.45         | 3,647.56      |
+| GPU Memory Reserved (MB)  | 11,896           | 7,448         |
+| Loss                      | **0.0871**       | 0.1037        |
+| Training Duration (min)   | Running          | 25.6          |
+
+> Victorious Chimp consumes more GPU but achieves better loss.
+
+---
+
+## ⚙️ Scheduling Jobs with Ray
+
+- **Central Scheduler**: `ray-head` (port 8265)
+- **Workers**: `ray-worker` (TorchTrainer jobs on GPU)
+- **Launcher**: `schedule_ray.py` (invokes training or retraining)
+- **Monitoring**: Prometheus (port 8080), visualized via Grafana
+
+> Docker Compose provisions: Ray, Prometheus, Grafana, MLflow, and MinIO.
+
+---
+
+## 📦 Optimization Techniques
+
+- **torch.bfloat16**: Mixed precision
+- **`TeaCache`**: Caches diffusion steps
+- **`enable_vram_management()`** + FP8 support
+- **Deepspeed**: Training time reduced from 12h → 6h on A30
+
+### 🔗 Optimization Commit
+[View Commit](https://github.com/Bhumika-Shetty/AdFame/commit/e33ec52114d51974cea9ff63a901eed72138aedf)
+
+---
+
+## 🧪 Model Serving & Evaluation
+
+### 🌐 API Serving
+
+- **FastAPI** (`video_api.py`)
+- Endpoint: `POST /generate`
+- **Input**: `{ "prompt": "..." }`
+- **Output**: Path to generated video
+
+> Uses async FastAPI server with globally loaded pipeline and GPU serialization.
+
+### 🧑‍💼 Customer Requirements
+
+- Latency < 3 min (1 GPU), <2 min (2 GPU)
+- 4 prompts / 2 mins throughput
+- 2–4 concurrent users
+- Outputs reflect brand tone and identity
+
+---
+
+## 📉 Throughput Results
+
+| Setup       | Effective Throughput (per 2 min)         | Notes                                         |
+|-------------|-------------------------------------------|-----------------------------------------------|
+| Single GPU  | ~0.67 to 1 prompt                         | Queue grows rapidly under 4 prompt load       |
+| 2× A100 GPUs| ~1.33 to 2 prompts                        | Near-perfect linear speedup                   |
+
+---
+
+## 🧪 Offline Evaluation Suite
+
+- `offline_evaluation.py` evaluates:
+  - **CLIP Score** (text-video alignment)
+  - **FVD** (Frechet Video Distance)
+  - **Temporal Consistency** (optical flow warp error)
+  - **BRISQUE** (image quality)
+
+Logged to MLflow under `wan_video_eval`.
+
+---
+
+## 🧪 Load Testing
+
+- Manual concurrency tests: 2–4 prompts sent simultaneously
+- Monitoring via **Prometheus + Grafana**
+- Scripts in development for automated concurrency testing
+
+---
+
+## 📈 Business-Specific Evaluation (Hypothetical)
+
+- **Brand Compliance**: Checks for logo, tone, and color adherence
+- **Engagement Proxies**: Re-generation or download count
+- **Speed to First Frame**: Key for real-time content
+
+---
+
+## 🧰 Multiple Serving Strategies
+
+### 1. **FastAPI**
+- Good for local testing, flexibility
+- Easy to extend and debug
+
+### 2. **Triton Inference Server**
+- Cloud-scalable
+- Supports dynamic batching
+
+**Cost Estimation**: Triton on AWS `g4dn.xlarge` ≈ $0.526/hr
+
+---
+
+## 📡 Online Monitoring
+
+- Generated videos + prompt metadata saved to `saved_videos/`
+- Prometheus + Grafana track:
+  - Inference latency
+  - Memory/GPU usage
+  - Request frequency
+- Feedback used for retraining (`schedule_ray.py`)
+
+---
+
+## 🧪 Optional Monitoring
+
+- **Data Drift (Planned)**: Track embedding drift via prompt embeddings
+- **Model Degradation**: Trends in CLIP/FVD/BRISQUE via MLflow + Grafana
+
+---
+
+## 🔁 Continuous X: CI/CD & Continuous Training
+
+### ⚙️ IaC Tools
+
+- **Terraform**: Infrastructure definition (see `terraform/kvm`)
+- **Ansible**: Software setup (see `Ansible/`)
+- **ArgoCD + Helm**: Kubernetes deployment (`Ansible/argocd/`)
+
+### 📦 CI/CD Pipeline
+
+- **Trigger**: Push to main branch
+- **Stages**:
+  - Build & Test (Docker)
+  - Continuous Training (Ray + MLflow)
+  - Staging Deployment (via ArgoCD)
+  - Canary → Production (GPU autoscaling)
+
+### 📦 Environments (ArgoCD)
+
+- **Staging**: Low-resource for integration testing
+- **Canary**: Partial rollout
+- **Production**: Full-scale GPU deployment
+
+### 🔁 Continuous Training
+
+- **Trigger**: Offline metrics or feedback loop
+- **ETL**: `docker-compose-online-data.yaml`
+
+---
+
+
+
   * *Reference:* `docker-compose-online-data.yaml`
 
 ---
