@@ -1,79 +1,76 @@
 ## AdFame
 
-<!-- 
-Discuss: Value proposition: Your will propose a machine learning system that can be 
-used in an existing business or service. (You should not propose a system in which 
-a new business or service would be developed around the machine learning system.) 
-Describe the value proposition for the machine learning system. What's the (non-ML) 
-status quo used in the business or service? What business metric are you going to be 
-judged on? (Note that the "service" does not have to be for general users; you can 
+<!--
+Discuss: Value proposition: Your will propose a machine learning system that can be
+used in an existing business or service. (You should not propose a system in which
+a new business or service would be developed around the machine learning system.)
+Describe the value proposition for the machine learning system. What's the (non-ML)
+status quo used in the business or service? What business metric are you going to be
+judged on? (Note that the "service" does not have to be for general users; you can
 propose a system for a science problem, for example.)
 -->
 
 ### Contributors
 
-<!-- Table of contributors and their roles. 
-First row: define responsibilities that are shared by the team. 
-Then, each row after that is: name of contributor, their role, and in the third column, 
-you will link to their contributions. If your project involves multiple repos, you will 
+<!-- Table of contributors and their roles.
+First row: define responsibilities that are shared by the team.
+Then, each row after that is: name of contributor, their role, and in the third column,
+you will link to their contributions. If your project involves multiple repos, you will
 link to their contributions in all repos here. -->
 
-| Name                            | Responsible for | Link to their commits in this repo |
-|---------------------------------|-----------------|------------------------------------|
-| Yashdeep Prasad                 |Model serving and monitoring platforms                 |https://github.com/Bhumika-Shetty/AdFame/activity?actor=prasad-yashdeep                                    |
-| Bhumika Dinesh Shetty           |Model training and training platforms               | https://github.com/Bhumika-Shetty/AdFame/activity?actor=Bhumika-Shetty                                   |
-| Divij Kapur                     |Continuous X                |https://github.com/Bhumika-Shetty/AdFame/activity?actor=dk-4999                                    |
-| Yashas Harisha                  |Data pipeline                 | https://github.com/Bhumika-Shetty/AdFame/activity?actor=yashas-h                                   |
-
-
+| Name                  | Responsible for                        | Link to their commits in this repo                                      |
+| --------------------- | -------------------------------------- | ----------------------------------------------------------------------- |
+| Yashdeep Prasad       | Model serving and monitoring platforms | https://github.com/Bhumika-Shetty/AdFame/activity?actor=prasad-yashdeep |
+| Bhumika Dinesh Shetty | Model training and training platforms  | https://github.com/Bhumika-Shetty/AdFame/activity?actor=Bhumika-Shetty  |
+| Divij Kapur           | Continuous X                           | https://github.com/Bhumika-Shetty/AdFame/activity?actor=dk-4999         |
+| Yashas Harisha        | Data pipeline                          | https://github.com/Bhumika-Shetty/AdFame/activity?actor=yashas-h        |
 
 ### System diagram
 
 ![System Architecture](./system_arch.png)
 
-** Note- All the microservices are containerised using docker and the orchestration takes place using kubernetes.
+\*\* Note- All the microservices are containerised using docker and the orchestration takes place using kubernetes.
 Currently we are experimenting multiple text to Video generation models , namely - Wan2.1, Hunyuan video, Open-sora, Cogxvideo
 
-
-<!-- Overall digram of system. Doesn't need polish, does need to show all the pieces. 
-Must include: all the hardware, all the containers/software platforms, all the models, 
+<!-- Overall digram of system. Doesn't need polish, does need to show all the pieces.
+Must include: all the hardware, all the containers/software platforms, all the models,
 all the data. -->
 
 ### Summary of outside materials
 
-<!-- In a table, a row for each dataset, foundation model. 
-Name of data/model, conditions under which it was created (ideally with links/references), 
+<!-- In a table, a row for each dataset, foundation model.
+Name of data/model, conditions under which it was created (ideally with links/references),
 conditions under which it may be used. -->
 
-| Dataset       | How it was created                                                                 | Conditions of use                                                                 |
-|---------------|------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| **VidProM**   | Created by Wenhao Wang et al. from public web sources, focusing on video prompts for generative tasks. | The prompts and videos generated by Pika in our VidProM are licensed under the CC BY-NC 4.0 license. Additionally, similar to their original repositories, the videos from VideoCraft2, Text2Video-Zero, and ModelScope are released under the Apache license, the CreativeML Open RAIL-M license, and the CC BY-NC 4.0 license, respectively. Our code is released under the CC BY-NC 4.0 license. |
-| **OpenVid-1M** | Created by Nan et al. by aggregating 1M+ text-video pairs from public datasets (e.g., Panda, ChronoMagic), with captions and 1080p videos. | CC-BY-4.0 license; requires attribution. Check source dataset licenses (e.g., CelebvHQ) for commercial use. Cite the dataset in publications. |
-| **AdImageNet** | The data is derived from a comprehensive collection of programmatic creative images hosted by Project300x250.com. The creative text was extracted from each image using Google's Vision API.|  |
-| Base model 1 | Wan2.1 is designed on the mainstream diffusion transformer paradigm, achieving significant advancements in generative capabilities through a series of innovations. These include our novel spatio-temporal variational autoencoder (VAE), scalable training strategies, large-scale data construction, and automated evaluation metrics. Collectively, these contributions enhance the model’s performance and versatility.                   | The models in this repository are licensed under the Apache 2.0 License. We claim no rights over the your generated contents, granting you the freedom to use them while ensuring that your usage complies with the provisions of this license. You are fully accountable for your use of the models, which must not involve sharing any content that violates applicable laws, causes harm to individuals or groups, disseminates personal information intended for harm, spreads misinformation, or targets vulnerable populations. For a complete list of restrictions and details regarding your rights, please refer to the full text of the license.| 
+| Dataset        | How it was created                                                                                                                                                                                                                                                                                                                                                                                                           | Conditions of use                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **VidProM**    | Created by Wenhao Wang et al. from public web sources, focusing on video prompts for generative tasks.                                                                                                                                                                                                                                                                                                                       | The prompts and videos generated by Pika in our VidProM are licensed under the CC BY-NC 4.0 license. Additionally, similar to their original repositories, the videos from VideoCraft2, Text2Video-Zero, and ModelScope are released under the Apache license, the CreativeML Open RAIL-M license, and the CC BY-NC 4.0 license, respectively. Our code is released under the CC BY-NC 4.0 license.                                                                                                                                                                                                                                                        |
+| **OpenVid-1M** | Created by Nan et al. by aggregating 1M+ text-video pairs from public datasets (e.g., Panda, ChronoMagic), with captions and 1080p videos.                                                                                                                                                                                                                                                                                   | CC-BY-4.0 license; requires attribution. Check source dataset licenses (e.g., CelebvHQ) for commercial use. Cite the dataset in publications.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **AdImageNet** | The data is derived from a comprehensive collection of programmatic creative images hosted by Project300x250.com. The creative text was extracted from each image using Google's Vision API.                                                                                                                                                                                                                                 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Base model 1   | Wan2.1 is designed on the mainstream diffusion transformer paradigm, achieving significant advancements in generative capabilities through a series of innovations. These include our novel spatio-temporal variational autoencoder (VAE), scalable training strategies, large-scale data construction, and automated evaluation metrics. Collectively, these contributions enhance the model’s performance and versatility. | The models in this repository are licensed under the Apache 2.0 License. We claim no rights over the your generated contents, granting you the freedom to use them while ensuring that your usage complies with the provisions of this license. You are fully accountable for your use of the models, which must not involve sharing any content that violates applicable laws, causes harm to individuals or groups, disseminates personal information intended for harm, spreads misinformation, or targets vulnerable populations. For a complete list of restrictions and details regarding your rights, please refer to the full text of the license. |
 
 ### Summary of infrastructure requirements
 
-<!-- Itemize all your anticipated requirements: What (`m1.medium` VM, `gpu_mi100`), 
-how much/when, justification. Include compute, floating IPs, persistent storage. 
+<!-- Itemize all your anticipated requirements: What (`m1.medium` VM, `gpu_mi100`),
+how much/when, justification. Include compute, floating IPs, persistent storage.
 The table below shows an example, it is not a recommendation. -->
 
-| Requirement     | How many/when                                     | Justification |
-|-----------------|---------------------------------------------------|---------------|
-| `m1.medium` VMs | 3 for entire project duration                     | Used across three environments: "dev/staging," "canary," and "production," each operating independent CI/CD pipelines and serving models separately.         |
-| `gpu_mi100`     | 4 hour block thrice a week                         |     Fine-tuning different models for text to image/video generation using 4×A100 GPUs.(Minimum VRAM 80GB or higher)          |
-| Floating IPs    | 3 for entire project duration, 1 for sporadic use |     Each m1.medium environment instance is assigned one IP, with an additional IP allocated for occasional GPU usage.          |
-| Persistent Storage             |             1 TB                                      |     Stores large volumes of images, videos, and model versions generated by text-to-image/video workflows.          |
+| Requirement        | How many/when                                     | Justification                                                                                                                                        |
+| ------------------ | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `m1.medium` VMs    | 3 for entire project duration                     | Used across three environments: "dev/staging," "canary," and "production," each operating independent CI/CD pipelines and serving models separately. |
+| `gpu_mi100`        | 4 hour block thrice a week                        | Fine-tuning different models for text to image/video generation using 4×A100 GPUs.(Minimum VRAM 80GB or higher)                                      |
+| Floating IPs       | 3 for entire project duration, 1 for sporadic use | Each m1.medium environment instance is assigned one IP, with an additional IP allocated for occasional GPU usage.                                    |
+| Persistent Storage | 1 TB                                              | Stores large volumes of images, videos, and model versions generated by text-to-image/video workflows.                                               |
 
 ### Detailed design plan
 
-<!-- In each section, you should describe (1) your strategy, (2) the relevant parts of the 
-diagram, (3) justification for your strategy, (4) relate back to lecture material, 
+<!-- In each section, you should describe (1) your strategy, (2) the relevant parts of the
+diagram, (3) justification for your strategy, (4) relate back to lecture material,
 (5) include specific numbers. -->
 
 #### Model training and training platforms
 
-<!-- Make sure to clarify how you will satisfy the Unit 4 and Unit 5 requirements, 
+<!-- Make sure to clarify how you will satisfy the Unit 4 and Unit 5 requirements,
 and which optional "difficulty" points you are attempting. -->
 
 # 🧠 Brand-Focused Video Diffusion Training System
@@ -98,10 +95,12 @@ Our focus: tailor these models to brand-specific marketing domains using curated
 ## 🔁 Training and Retraining Strategy (Unit 4)
 
 ### ✅ Initial Fine-Tuning
+
 - Brand-focused video dataset (e.g., sportswear commercials)
 - Image + video support using the `finetrainers` library
 
 ### 🔁 Retraining via A/B Preference Loop
+
 1. User enters a prompt
 2. System generates 5 candidate videos
 3. User selects the best one
@@ -117,21 +116,23 @@ Our focus: tailor these models to brand-specific marketing domains using curated
 ## 🎯 Modeling & Model Selection (Unit 4)
 
 ### 🔍 Selection Criteria
+
 - High-quality, coherent video generation
 - Open-source accessibility & fine-tune readiness
 
-| **Model**              | **Task**       | **LoRA VRAM** | **Full FT VRAM** |
-|------------------------|----------------|----------------|------------------|
-| Wan 2.1 (1.3B)         | Text-to-Video  | ~12 GB         | ~24–30 GB        |
-| Wan 2.1 (14B)          | Text-to-Video  | ~30 GB         | ~125+ GB         |
-| Open-SORA (11B)        | Text-to-Video  | ~28 GB         | ~110 GB          |
-| CogVideoX (5B)         | Text-to-Video  | 18–47 GB       | 53–80 GB         |
+| **Model**       | **Task**      | **LoRA VRAM** | **Full FT VRAM** |
+| --------------- | ------------- | ------------- | ---------------- |
+| Wan 2.1 (1.3B)  | Text-to-Video | ~12 GB        | ~24–30 GB        |
+| Wan 2.1 (14B)   | Text-to-Video | ~30 GB        | ~125+ GB         |
+| Open-SORA (11B) | Text-to-Video | ~28 GB        | ~110 GB          |
+| CogVideoX (5B)  | Text-to-Video | 18–47 GB      | 53–80 GB         |
 
 ---
 
 ## 🧪 Fine-Tuning Approach
 
 ### 🚀 Efficiency Techniques
+
 - ✅ **LoRA** (Low-Rank Adaptation)
 - ✅ Gradient Accumulation
 - ✅ Layer Freezing
@@ -141,6 +142,7 @@ Our focus: tailor these models to brand-specific marketing domains using curated
 ![LoRA Architecture – placeholder](docs/lora_architecture.png)
 
 ### ⚙️ Training Library: `finetrainers`
+
 - ✅ DDP, FSDP-2, HSDP support
 - ✅ Combined image/video datasets
 - ✅ Precomputation + async streaming
@@ -151,12 +153,14 @@ Our focus: tailor these models to brand-specific marketing domains using curated
 ## 🗂 Domain-Specific Dataset
 
 Curated for each brand:
+
 - 📹 Commercial ads
 - 📱 Social media videos
 - 🖼 Product stills
 - ✍️ Prompt-formatted ad copy
 
 ### Dynamic Expansion:
+
 - Add prompt–video pairs chosen by users in feedback loop
 - Align training with high-engagement content
 
@@ -175,6 +179,7 @@ Curated for each brand:
 ## ⚙️ Infrastructure & Experimentation (Unit 5)
 
 ### ☁️ Training Infrastructure
+
 - 🧩 Ray Cluster for distributed job scheduling
 - 🧪 MLflow hosted on Chameleon (self-hosted tracker)
 - 🐳 Dockerized training pipeline for portability
@@ -185,29 +190,31 @@ Curated for each brand:
 
 ## 🧪 Experiment Tracking
 
-| Tool     | Usage                  |
-|----------|------------------------|
-| MLflow   | Track losses, models, metrics, outputs |
-| MinIO    | Store model artifacts  |
-| GitHub   | Version control + README |
+| Tool   | Usage                                  |
+| ------ | -------------------------------------- |
+| MLflow | Track losses, models, metrics, outputs |
+| MinIO  | Store model artifacts                  |
+| GitHub | Version control + README               |
 
 ---
 
 ## 🚦 Advanced Strategies (Extra Difficulty Points)
 
 ### 🛡️ Fault-Tolerant Training (Ray Train)
+
 - Auto-restart from last checkpoint
 - Resilient to spot instance preemption
 
 ### 🎛️ Hyperparameter Tuning (Ray Tune)
+
 - Search: learning rate, LoRA rank, batch size
 - Algorithms: ASHA, PBT, Bayesian Optimization
 
 ### 📊 Performance Scaling
+
 - Compare DDP vs FSDP
 - Plot training time vs # of GPUs
 - Estimate speedup & memory savings
-
 
 ## 🧭 Acknowledgments
 
@@ -216,12 +223,11 @@ Curated for each brand:
 - [CogVideoX](https://huggingface.co/THUDM/CogVideoX-5b)
 - [finetrainers](https://github.com/a-r-r-o-w/finetrainers)
 
-
 #### Model serving and monitoring platforms
+
 # 🎥 Fine-Tuned Video Diffusion Model Serving
 
 This project provides a **RESTful API** using **FastAPI** to generate videos from textual prompts via a fine-tuned **video diffusion model** (up to 14B parameters). Designed for automated marketing content creation, the service meets strict performance and reliability targets with advanced model and system-level optimizations.
-
 
 ## 🚀 API Endpoint
 
@@ -229,6 +235,7 @@ This project provides a **RESTful API** using **FastAPI** to generate videos fro
 Accepts a text prompt and returns a generated video.
 
 ### 🔧 Example Request
+
 ```json
 {
   "prompt": "A sunset over the ocean in the style of a watercolor painting",
@@ -238,6 +245,7 @@ Accepts a text prompt and returns a generated video.
 ```
 
 ### 📼 Example Response
+
 ```json
 {
   "video_url": "https://example.com/videos/gen_abc123.mp4",
@@ -251,10 +259,10 @@ Accepts a text prompt and returns a generated video.
 
 ## 🎯 Performance Requirements
 
-- **Max Model Size**: 14B parameters  
-- **Batch Throughput**: 4 prompts / 2 minutes  
-- **Single Prompt Latency**: < 30 seconds  
-- **Concurrent Users**: 5–10 (cloud-based)  
+- **Max Model Size**: 14B parameters
+- **Batch Throughput**: 4 prompts / 2 minutes
+- **Single Prompt Latency**: < 30 seconds
+- **Concurrent Users**: 5–10 (cloud-based)
 
 ---
 
@@ -294,7 +302,8 @@ Accepts a text prompt and returns a generated video.
 </details>
 
 ### 📈 TeaCache Acceleration
-- Reduces redundant computations during diffusion steps  
+
+- Reduces redundant computations during diffusion steps
 - Achieves up to **2× speedup**
 
 ---
@@ -310,34 +319,29 @@ Accepts a text prompt and returns a generated video.
 
 ## 📦 Deployment Options
 
-| Platform           | Latency       | Throughput           | Cost             |
-|-------------------|---------------|-----------------------|------------------|
-| **GPU Server**     | ~20–30 sec    | 4+ videos / 2 minutes | High performance |
-| **CPU (ONNX)**     | ~180+ sec      | 1–2 videos / 5 minutes| Budget-friendly  |
-| **Edge Device**    | 5–10+ minutes  | 1 video / 5–10 minutes | Low cost         |
-
-
+| Platform        | Latency       | Throughput             | Cost             |
+| --------------- | ------------- | ---------------------- | ---------------- |
+| **GPU Server**  | ~20–30 sec    | 4+ videos / 2 minutes  | High performance |
+| **CPU (ONNX)**  | ~180+ sec     | 1–2 videos / 5 minutes | Budget-friendly  |
+| **Edge Device** | 5–10+ minutes | 1 video / 5–10 minutes | Low cost         |
 
 # 🛠️ Online Evaluation, Feedback Loop, and Monitoring
-
 
 ## 📊 Evaluation & Monitoring
 
 ### 📍 Offline Evaluation (via MLflow)
 
-- **Text-Video Alignment**: CLIP score  
-- **Realism**: Fréchet Video Distance (FVD)  
-- **Temporal Consistency**: Frame similarity  
-- **Fairness Testing**: Diverse demographic prompts  
-- **Known Failure Modes**: Flickering, object drift  
+- **Text-Video Alignment**: CLIP score
+- **Realism**: Fréchet Video Distance (FVD)
+- **Temporal Consistency**: Frame similarity
+- **Fairness Testing**: Diverse demographic prompts
+- **Known Failure Modes**: Flickering, object drift
 - **Unit Tests**: Ensure API validity
 
 ### 🧪 Load Testing in Staging
 
-- Simulates real user traffic (5–10 concurrent prompts)  
+- Simulates real user traffic (5–10 concurrent prompts)
 - Tests varying prompt lengths, GPU load, etc.
-
-
 
 ## 🧪 Canary Deployment Strategy
 
@@ -414,14 +418,12 @@ We implement a **self-healing pipeline**:
 
 > This framework ensures that the deployed video diffusion model remains accurate, fair, and aligned with user expectations—even as inputs, content demands, and business goals evolve.
 
-
-
-
 #### Data pipeline
 
-<!-- Make sure to clarify how you will satisfy the Unit 8 requirements,  and which 
+<!-- Make sure to clarify how you will satisfy the Unit 8 requirements,  and which
 optional "difficulty" points you are attempting. -->
-This data pipeline supports a prompt-to-video model, handling data ingestion, processing, and storage for training, inference, retraining. The primary datasets are VidProM (1M+ records), AdImageNet, and OpenVid-1M (1M+ records) for training. Each prompt is modified into 5 variations, generating 5 videos for A/B testing, with the best video stored for retraining. 
+
+This data pipeline supports a prompt-to-video model, handling data ingestion, processing, and storage for training, inference, retraining. The primary datasets are VidProM (1M+ records), AdImageNet, and OpenVid-1M (1M+ records) for training. Each prompt is modified into 5 variations, generating 5 videos for A/B testing, with the best video stored for retraining.
 
 - **Persistent Storage**: A detachable Chameleon volume will be provisioned using OpenStack Cinder to store all non-Git-tracked artifacts, including raw and processed datasets (VidProM, AdImageNet, OpenVid-1M), training artifacts (e.g., preprocessed video frames), generated videos, A/B testing results, benchmarking data, PostgreSQL’s data directory, Kafka’s logs, and Spark’s temporary files. The volume will be mounted to the Chameleon instance (e.g., a medium instance with 4 CPUs, 8 GB RAM) and detached when not in use, ensuring data durability across instance restarts.
 
@@ -433,10 +435,9 @@ This data pipeline supports a prompt-to-video model, handling data ingestion, pr
 
 - **Interactive Data Dashboard**: A Streamlit dashboard will be hosted on Chameleon, providing team visibility into data and performance. It will display offline stats (e.g., dataset sizes, quality metrics like % of corrupted files, precomputed by PySpark and stored in dashboard_stats), online metrics (e.g., prompt arrival rates, video generation counts, A/B testing trends), and benchmarking results (e.g., quality scores vs. OpenVid-1M’s 1080p subset).
 
-
 #### Continuous X
 
-<!-- Make sure to clarify how you will satisfy the Unit 3 requirements,  and which 
+<!-- Make sure to clarify how you will satisfy the Unit 3 requirements,  and which
 optional "difficulty" points you are attempting. -->
 
 Continuous X: Cloud-Native CI/CD and Continuous Training for Video Generation and AB Testing
@@ -507,44 +508,44 @@ Data Pipeline:
 
 Unit 8’s ETL processes ingest new user feedback and production data for retraining. (Ref: docker-compose-online-data.yaml)
 
-
 # 🎥 AdFame Project Presentation (MLOps Final)
 
 ## ✅ Unit 1: Value Proposition & Scale
 
 ### 🎯 Value Proposition
+
 **Customer:**  
-A *creative marketing lead at Nike or Adidas* who wants to generate high-quality branded video ads rapidly, without relying on expensive production cycles.
+The Creative Production Team at Adidas, responsible for regional digital marketing campaigns across North America and Europe. These teams regularly produce short-form promotional content for social media platforms such as Instagram, TikTok, and YouTube.
 
-**Value Proposition:**  
-We deliver a system that can take natural language prompts (e.g., “A woman running in Nike shoes on a beach”) and generate short, visually engaging, brand-aligned video ads. This helps marketers iterate quickly on creative concepts.
+**Current Process (Non-ML Status Quo):**  
+Adidas currently relies on traditional creative pipelines involving concept ideation, live-action shooting, post-production editing, and review cycles. Producing a single short-form branded video typically takes 2–4 weeks and costs $20K–$50K, depending on production quality and talent requirements. This high cost and long cycle time limit their ability to rapidly experiment with new campaigns or respond to market trends. (Ref: https://www.startmotionmedia.com/commercial-video-production/commercial-video-cost-how-much-to-pay-for-commercial-video/?utm_source=chatgpt.com)
 
-**Design Influences:**  
-- **Data**: Large-scale curated fashion-specific video-text dataset
-- **Deployment**: Cloud-native, GPU-backed inference endpoints
-- **Evaluation**: Business-aligned metrics (e.g., visual fidelity, brand tone), offline loss, and latency
+**Proposed ML System::**  
+Our system enables Adidas’ creative teams to generate brand-aligned short videos from natural language prompts (e.g., “A sprinter in Adidas gear crossing the finish line in slow motion”). This allows for rapid iteration, A/B testing, and personalization of marketing content without needing full production cycles.
 
-### 📈 Scale
-- **Data Size**: 20 GB (object store) + 200 GB (block storage during processing)
+### 📈 Design Decisions Influenced by This Customer:
+
+- **Scale**: Adidas launches 15–30 digital campaigns/month per region, with each campaign requiring 3–5 variants for different audiences and platforms. This translates to ~500 video generations/month, matching our inference load target.
 - **Model**: Wan 2.1 (14B parameters), fine-tuned using LoRA
 - **Training Time**: 5 epochs ~ 45 minutes (A100 GPU)
-- **Inference Load**: ~500 requests/day (~20/hour)
 
 ---
 
 ## ☁️ Unit 2/3: Continuous X (Infra + CI/CD)
 
 ### 🖼️ Cloud-Native Architecture
-> *(Updated system diagram here)*
+
+> ![alt text](<Final Diagram-1.png>)
 
 - Training: Ray, MLflow, Docker Compose
-- Serving: FastAPI + Uvicorn + TorchScript
+- Serving: FastAPI, User Interface for Video Showcase
 - Data: MinIO (object store) + Block Storage (video extraction)
-- CI/CD: GitHub Actions + Docker Registry
 
 ### 🛠️ Infrastructure as Code
+
 Repo: [`/docker`](https://github.com/Bhumika-Shetty/AdFame/tree/main/docker)  
 Provision via:
+
 ```bash
 docker compose -f docker-compose-training-data.yaml up --build -d
 
@@ -584,36 +585,41 @@ We use two forms of persistent storage on Chameleon Cloud:
 #### 📚 Dataset: [OpenVid-1M](https://huggingface.co/datasets/nkp37/OpenVid-1M)
 
 **Source**:
+
 - Aggregates video-text pairs from online repositories, human-labeled datasets, and prior generative systems.
 
 **Each Sample Includes**:
+
 - A **text prompt** (e.g., "A woman jogging in Adidas sportswear")
 - A **short video clip** (real/synthetic)
 - **Metadata**: tags, duration, resolution (optional)
 
 **Data Lineage**:
+
 - Prompt + video pairs from OpenVid-1M
 - Curated by filtering fashion-specific contexts (e.g., "Nike shoes", "basketball court", "urban streetwear")
 
 **Example Sample**:
 
-| Field       | Value                                            |
-|-------------|--------------------------------------------------|
-| Prompt      | "A teenager skateboarding in Nike sneakers"      |
-| Video       | `/zip_archive/video_08732.mp4`                   |
-| Tags        | `nike, skateboarding, urban, sportswear`         |
-| Duration    | 5.2 seconds                                      |
-| Resolution  | 480x640                                          |
+| Field      | Value                                       |
+| ---------- | ------------------------------------------- |
+| Prompt     | "A teenager skateboarding in Nike sneakers" |
+| Video      | `/zip_archive/video_08732.mp4`              |
+| Tags       | `nike, skateboarding, urban, sportswear`    |
+| Duration   | 5.2 seconds                                 |
+| Resolution | 480x640                                     |
 
 This sample relates to **Nike's marketing needs**: youth appeal, athletic motion, and brand visibility.
 
 **Production Sample Lifecycle**:
+
 - Same format as training
 - Prompts arrive from live user input or batch curation
 - Videos generated
 - Optionally rated and reused as feedback for retraining (active learning)
 
-Mapping Reference:  
+Mapping Reference:
+
 - [OpenVid-1M-mapping](https://huggingface.co/datasets/phil329/OpenVid-1M-mapping)
 
 ---
@@ -625,6 +631,7 @@ Mapping Reference:
 #### 🛠 Services Overview
 
 **`extract-fashion-videos`**:
+
 1. Download metadata + mappings and create a unified dataframe.
 2. Filter prompts by:
    - Brand keywords (`nike`, `adidas`, etc.)
@@ -636,6 +643,7 @@ Mapping Reference:
 6. Store outputs in **block storage** and delete zip files
 
 **`split-fashion-data`**:
+
 - Split into:
   - **Train**: 70%
   - **Evaluation**: 15%
@@ -643,15 +651,17 @@ Mapping Reference:
 - Prevents overlap and leakage between evaluation and training sets
 
 **`load-data`**:
+
 - Upload split datasets from block storage into the **MinIO object store**
 
 ---
 
 ### 4. 📊 (Optional) Data Dashboard
 
-> *Planned feature*
+> _Planned feature_
 
 A future dashboard could visualize:
+
 - Category distribution (e.g., sportswear vs casual)
 - Tag frequency heatmaps
 - Zip archive coverage
@@ -661,7 +671,6 @@ A future dashboard could visualize:
 Helps Nike/Adidas teams monitor dataset scope, refine prompt strategy, and evaluate curation coverage (e.g., "Do we have enough videos for basketball scenes?" or "Which styles are underrepresented?").
 
 ---
-
 
 Here is the markdown version of the provided text:
 
@@ -679,19 +688,19 @@ Design a cloud-native CI/CD pipeline with staged deployment, infrastructure-as-c
 
 **Tools:**
 
-* **Terraform:** Declaratively define Chameleon infrastructure (VMs, networks, storage) in Git.
+- **Terraform:** Declaratively define Chameleon infrastructure (VMs, networks, storage) in Git.
 
-  * *Implementation:* Made the Terraform files and shell scripts to mount data, but they did not work. As a result, set up a VM on Jupyter Notebook.
-  * *Reference:* `terraform/kvm` folder and `1-create-server-data-pipeline.ipynb` notebook in "Resource Setup".
+  - _Implementation:_ Made the Terraform files and shell scripts to mount data, but they did not work. As a result, set up a VM on Jupyter Notebook.
+  - _Reference:_ `terraform/kvm` folder and `1-create-server-data-pipeline.ipynb` notebook in "Resource Setup".
 
-* **Ansible:** Automate software installation (Docker, Ray, MLFlow) and configuration on provisioned VMs.
+- **Ansible:** Automate software installation (Docker, Ray, MLFlow) and configuration on provisioned VMs.
 
-  * *Implementation:* Set up Ansible.
-  * *Reference:* `Ansible` folder.
+  - _Implementation:_ Set up Ansible.
+  - _Reference:_ `Ansible` folder.
 
-* **ArgoCD/Helm:** Manage Kubernetes deployments for microservices (LLM, video generation, resolution adjustment).
+- **ArgoCD/Helm:** Manage Kubernetes deployments for microservices (LLM, video generation, resolution adjustment).
 
-  * *Implementation:* ArgoCD setup is present in the `argocd` subfolder within the `Ansible` folder.
+  - _Implementation:_ ArgoCD setup is present in the `argocd` subfolder within the `Ansible` folder.
 
 ---
 
@@ -703,28 +712,28 @@ Design a cloud-native CI/CD pipeline with staged deployment, infrastructure-as-c
 
 1. **Build & Test:**
 
-   * Containerize each script using Docker.
+   - Containerize each script using Docker.
 
 2. **Continuous Training:**
 
-   * **Ray Cluster Integration:** Submit model retraining jobs (e.g., finetuned attention model) to Ray via Argo Workflows.
-   * **Experiment Tracking:** Log metrics to MLFlow.
+   - **Ray Cluster Integration:** Submit model retraining jobs (e.g., finetuned attention model) to Ray via Argo Workflows.
+   - **Experiment Tracking:** Log metrics to MLFlow.
 
 3. **Staging Deployment:**
 
-   * Deploy to staging using ArgoCD.
-   * Mirror production but with fewer replicas.
-   * Trigger canary deployment when staging tests pass and so on for production.
+   - Deploy to staging using ArgoCD.
+   - Mirror production but with fewer replicas.
+   - Trigger canary deployment when staging tests pass and so on for production.
 
 4. **Canary Deployment:**
 
-   * Monitor canary deployment.
-   * If successful, promote to production.
+   - Monitor canary deployment.
+   - If successful, promote to production.
 
 5. **Production Deployment:**
 
-   * Full rollout after canary success.
-   * Use Kubernetes autoscaling for high traffic.
+   - Full rollout after canary success.
+   - Use Kubernetes autoscaling for high traffic.
 
 ---
 
@@ -732,14 +741,14 @@ Design a cloud-native CI/CD pipeline with staged deployment, infrastructure-as-c
 
 For "Canary", "Staging", and "Production" environments, see the attached screenshot showing the Argo dashboard:
 
-* *File:* `Argo Dashboard for different env` (image file).
+- _File:_ `Argo Dashboard for different env` (image file).
 
 #### Environment Breakdown:
 
-* **Testing:** Unit and integration tests with simulated loads.
-* **Staging:** Low-resource setup for integration testing and canary testing.
-* **Canary:** Partial rollout to detect regressions and anomalies.
-* **Production:** Scalable deployment with GPU nodes and full workload capacity.
+- **Testing:** Unit and integration tests with simulated loads.
+- **Staging:** Low-resource setup for integration testing and canary testing.
+- **Canary:** Partial rollout to detect regressions and anomalies.
+- **Production:** Scalable deployment with GPU nodes and full workload capacity.
 
 ---
 
@@ -747,13 +756,13 @@ For "Canary", "Staging", and "Production" environments, see the attached screens
 
 **Triggers:**
 
-* Scheduled retraining based on model performance.
+- Scheduled retraining based on model performance.
 
-  * *Status:* Intended but could not complete the feedback loop.
+  - _Status:_ Intended but could not complete the feedback loop.
 
 **Data Pipeline:**
 
-* Unit 8’s ETL processes ingest new user feedback and production data for retraining.
+- Unit 8’s ETL processes ingest new user feedback and production data for retraining.
 
 # 🧠 AdFame: Branded Video Generation for Fashion Marketing
 
@@ -767,7 +776,7 @@ This project enables text-to-video generation tailored for brand marketing (e.g.
 
 We treat branded video generation as a **conditional generative modeling** problem using **diffusion-based text-to-video models**.
 
-- **Input**: Natural language prompt (e.g., *"A woman running in Nike shoes."*)
+- **Input**: Natural language prompt (e.g., _"A woman running in Nike shoes."_)
 - **Output**: Short video (3–6 seconds), aligned to brand tone and identity.
 
 ### ⚙️ Model Details
@@ -788,21 +797,22 @@ We treat branded video generation as a **conditional generative modeling** probl
 ## 📊 Experiment Tracking & Results (MLflow)
 
 ### 📍 Location
+
 - MLflow UI: `http://localhost:8000`
 - All metrics in Postgres
 - Artifacts (models/videos) in MinIO (S3-compatible)
 
 ### 🧪 Comparison Example: Victorious Chimp vs. Merciful Sow
 
-| Metric                     | Victorious Chimp | Merciful Sow |
-|---------------------------|------------------|---------------|
-| CPU Usage (%)             | 2.5              | 2.6           |
-| RAM Used (MB)             | 35,467.85        | 35,000.04     |
-| GPU Used (MB)             | 13,431           | 8,983         |
-| GPU Memory Allocated (MB) | 3,652.45         | 3,647.56      |
-| GPU Memory Reserved (MB)  | 11,896           | 7,448         |
-| Loss                      | **0.0871**       | 0.1037        |
-| Training Duration (min)   | Running          | 25.6          |
+| Metric                    | Victorious Chimp | Merciful Sow |
+| ------------------------- | ---------------- | ------------ |
+| CPU Usage (%)             | 2.5              | 2.6          |
+| RAM Used (MB)             | 35,467.85        | 35,000.04    |
+| GPU Used (MB)             | 13,431           | 8,983        |
+| GPU Memory Allocated (MB) | 3,652.45         | 3,647.56     |
+| GPU Memory Reserved (MB)  | 11,896           | 7,448        |
+| Loss                      | **0.0871**       | 0.1037       |
+| Training Duration (min)   | Running          | 25.6         |
 
 > Victorious Chimp consumes more GPU but achieves better loss.
 
@@ -827,6 +837,7 @@ We treat branded video generation as a **conditional generative modeling** probl
 - **Deepspeed**: Training time reduced from 12h → 6h on A30
 
 ### 🔗 Optimization Commit
+
 [View Commit](https://github.com/Bhumika-Shetty/AdFame/commit/e33ec52114d51974cea9ff63a901eed72138aedf)
 
 ---
@@ -853,10 +864,10 @@ We treat branded video generation as a **conditional generative modeling** probl
 
 ## 📉 Throughput Results
 
-| Setup       | Effective Throughput (per 2 min)         | Notes                                         |
-|-------------|-------------------------------------------|-----------------------------------------------|
-| Single GPU  | ~0.67 to 1 prompt                         | Queue grows rapidly under 4 prompt load       |
-| 2× A100 GPUs| ~1.33 to 2 prompts                        | Near-perfect linear speedup                   |
+| Setup        | Effective Throughput (per 2 min) | Notes                                   |
+| ------------ | -------------------------------- | --------------------------------------- |
+| Single GPU   | ~0.67 to 1 prompt                | Queue grows rapidly under 4 prompt load |
+| 2× A100 GPUs | ~1.33 to 2 prompts               | Near-perfect linear speedup             |
 
 ---
 
@@ -891,10 +902,12 @@ Logged to MLflow under `wan_video_eval`.
 ## 🧰 Multiple Serving Strategies
 
 ### 1. **FastAPI**
+
 - Good for local testing, flexibility
 - Easy to extend and debug
 
 ### 2. **Triton Inference Server**
+
 - Cloud-scalable
 - Supports dynamic batching
 
@@ -950,10 +963,4 @@ Logged to MLflow under `wan_video_eval`.
 
 ---
 
-
-
-  * *Reference:* `docker-compose-online-data.yaml`
-
----
-
-```
+- _Reference:_ `docker-compose-online-data.yaml`
