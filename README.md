@@ -963,4 +963,19 @@ Logged to MLflow under `wan_video_eval`.
 
 ---
 
-- _Reference:_ `docker-compose-online-data.yaml`
+## Unit 8: 
+
+### Online Data: Sending "New" Data to the Inference Endpoint During Production
+
+Data is simulated from the production dataset and sent to the inference endpoint using services defined in the `docker-compose-online-data.yaml` file:
+
+- **load-data**:  
+  This service loads back inferred data to object storage.
+
+- **simulate-online-data**:  
+  This service sequentially passes 20 prompts to the inference endpoint.
+
+- **simulate-online-data-concurrent**:  
+  This service sends prompts concurrently in specified batches to simulate real-time concurrent requests. While useful for stress-testing, it represents a rare or edge-case production scenario.
+
+🔗 [View `docker-compose-online-data.yaml`](https://github.com/Bhumika-Shetty/AdFame/blob/main/docker/docker-compose-online-data.yaml)
